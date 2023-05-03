@@ -4,11 +4,11 @@ CREATE TABLE users (
   surname VARCHAR(30),
   avatar TEXT,
   login VARCHAR(30),
-  passwdHash TEXT,
-  isAdmin BOOLEAN,
-  isAuthor BOOLEAN,
+  passwd_hash TEXT,
+  is_admin BOOLEAN,
+  is_author BOOLEAN,
   description TEXT,
-  createdAt TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE categories (
@@ -26,21 +26,21 @@ CREATE TABLE posts (
   title VARCHAR(100),
   body TEXT,
   poster TEXT,
-  authorId INT REFERENCES users(id),
-  categoryId INT REFERENCES categories(id),
+  author_id INT REFERENCES users(id),
+  category_id INT REFERENCES categories(id),
   tags INT[],
   comments INT[],
-  isPublished BOOLEAN,
-  createdAt TIMESTAMP,
-  updatedAt TIMESTAMP,
-  publishedAt TIMESTAMP
+  is_published BOOLEAN,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  published_at TIMESTAMP
 );
 
 CREATE TABLE comments (
   id SERIAL PRIMARY KEY,
   body TEXT,
-  authorId INT REFERENCES users(id),
-  postId INT REFERENCES posts(id),
-  createdAt TIMESTAMP,
-  updatedAt TIMESTAMP
+  author_id INT REFERENCES users(id),
+  post_id INT REFERENCES posts(id),
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
 );
