@@ -8,7 +8,7 @@ CREATE TABLE users (
   isAdmin BOOLEAN,
   isAuthor BOOLEAN,
   description TEXT,
-  createdAt TIMESTAMP
+  createdAt TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE categories (
