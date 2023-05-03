@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import e, { Router } from 'express';
 import client from '../client';
 
 const router = Router();
@@ -13,20 +13,18 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { login } = req.body;
-  client
-    .query('SELECT login FROM users WHERE login=$1', [login])
-    .then(({ rows }) => {
-      if (rows.length > 0) {
-        res.status(409).send('Such login already exists');
-      } else {
-        client
-          .query('INSERT INTO users (login) VALUES ($1)', [login])
-          .then(() => res.sendStatus(201))
-          .catch(() => res.sendStatus(500));
-      }
-    })
-    .catch(() => res.sendStatus(500));
+  try {
+    const { login } = req.body;
+    const users = await client.query('SELECT login FROM users WHERE login=$1', [login]);
+    if (users.rows.length > 0) {
+      res.status(409).send('Such login already exists');
+    } else {
+      await client.query('INSERT INTO users (login) VALUES ($1)', [login]);
+      res.sendStatus(201);
+    }
+  } catch {
+    res.sendStatus(500);
+  }
 });
 
 export default router;
