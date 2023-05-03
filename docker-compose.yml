@@ -1,23 +1,20 @@
 version: '3.8'
 services:
   db:
-    image: postgres
+    build: ./db
     restart: always
     ports:
       - "35432:5432"
     environment:
-      POSTGRES_DB: db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   api:
-    build: .
+    build: ./api
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgres://user:pass@postgres:5432/db
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
     ports:
       - "3000:3000"
-    # volumes:
-    #   - .:/app/
-    #   - /app/node_modules

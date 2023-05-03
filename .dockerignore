@@ -1,7 +1,0 @@
-.cmessage
-.vscode
-.git
-.gitignore
-*.log
-dist
-node_modules
