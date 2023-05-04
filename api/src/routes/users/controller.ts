@@ -28,7 +28,7 @@ export class UserController {
   static getAll: RequestHandler = async (req, res) => {
     try {
       const { rows } = await client.query(
-        'SELECT id, name, surname, avatar, login, is_admin, is_author, description, created_at FROM users'
+        'SELECT id, login, name, surname, avatar, created_at FROM users'
       );
       res.send(rows);
     } catch {
