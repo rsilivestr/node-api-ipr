@@ -5,8 +5,8 @@ CREATE TABLE users (
   avatar TEXT,
   login VARCHAR(30),
   passwd_hash TEXT,
-  is_admin BOOLEAN,
-  is_author BOOLEAN,
+  is_admin BOOLEAN DEFAULT false,
+  is_author BOOLEAN DEFAULT false,
   description TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
