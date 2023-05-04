@@ -17,7 +17,7 @@ CREATE TABLE authors (
 
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(30) NOT NULL
+  name VARCHAR(30) NOT NULL,
   parent_id INT REFERENCES categories(id)
 );
 
