@@ -1,5 +1,6 @@
-import e, { Router } from 'express';
-import client from '../client';
+import { Router } from 'express';
+
+import client from '../../client';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.post('/', async (req, res) => {
   try {
     const { login } = req.body;
     const users = await client.query('SELECT login FROM users WHERE login=$1', [login]);
-    if (users.rows.length > 0) {
+    if (users.rowCount > 0) {
       res.status(409).send('Such login already exists');
     } else {
       await client.query('INSERT INTO users (login) VALUES ($1)', [login]);
