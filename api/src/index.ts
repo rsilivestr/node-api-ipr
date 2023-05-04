@@ -2,6 +2,7 @@ import express, { json, Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 
 import users from './routes/users';
+import authors from './routes/authors';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.get(baseUrl, (req: Request, res: Response) => {
 });
 
 app.use(`${baseUrl}/users`, users);
+app.use(`${baseUrl}/authors`, authors);
 
 const port = process.env.PORT;
 app.listen(port, () => {
