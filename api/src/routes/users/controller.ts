@@ -27,7 +27,7 @@ export class UserController {
     }
   };
 
-  static getAll: RequestHandler = async (req, res) => {
+  static read: RequestHandler = async (req, res) => {
     try {
       const { rows } = await client.query('SELECT id, login, name, surname, avatar, created_at FROM users');
       res.send(rows);
@@ -36,14 +36,14 @@ export class UserController {
     }
   };
 
-  static getOne: RequestHandler = async (req, res) => {
+  static findById: RequestHandler = async (req, res) => {
     const { id } = req.params;
     try {
       const { rows, rowCount } = await client.query(
         'SELECT id, login, name, surname, avatar, created_at FROM users WHERE id=$1',
         [id]
       );
-      if (rowCount == 0) {
+      if (rowCount === 0) {
         res.sendStatus(404);
       } else {
         res.send(rows[0]);
