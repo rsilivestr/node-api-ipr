@@ -1,5 +1,6 @@
 import { hash } from 'bcrypt';
 import { RequestHandler } from 'express';
+import { sign } from 'jsonwebtoken';
 
 import client from '../../client';
 
@@ -18,7 +19,8 @@ export class UserController {
           'INSERT INTO users (login, passwd_hash, name, surname, avatar) VALUES ($1, $2, $3, $4, $5)',
           [login, passwordHash, name, surname, avatar]
         );
-        res.sendStatus(201);
+        const token = sign({ login }, String(process.env.JWT_SECRET));
+        res.status(201).send({ token });
       }
     } catch {
       res.sendStatus(500);
@@ -27,9 +29,7 @@ export class UserController {
 
   static getAll: RequestHandler = async (req, res) => {
     try {
-      const { rows } = await client.query(
-        'SELECT id, login, name, surname, avatar, created_at FROM users'
-      );
+      const { rows } = await client.query('SELECT id, login, name, surname, avatar, created_at FROM users');
       res.send(rows);
     } catch {
       res.send(500);

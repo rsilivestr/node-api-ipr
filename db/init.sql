@@ -3,7 +3,7 @@ CREATE TABLE users (
   name VARCHAR(30),
   surname VARCHAR(30),
   avatar TEXT,
-  login VARCHAR(30),
+  login VARCHAR(30) UNIQUE,
   passwd_hash TEXT,
   is_admin BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT NOW()
