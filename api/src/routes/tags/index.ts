@@ -1,11 +1,11 @@
 import { Router } from 'express';
 
-import { TagsController } from './controller';
+import { TagController } from './controller';
 
 const router = Router();
 
-router.get('/', TagsController.read);
+router.get('/', TagController.read);
 
-router.post('/', TagsController.create);
+router.post('/', TagController.create);
 
 export default router;

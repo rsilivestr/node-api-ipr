@@ -6,6 +6,7 @@ import authors from './routes/authors';
 import auth from './routes/auth';
 import posts from './routes/posts';
 import tags from './routes/tags';
+import categories from './routes/categories';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(`${baseUrl}/authors`, authors);
 app.use(`${baseUrl}/auth`, auth);
 app.use(`${baseUrl}/posts`, posts);
 app.use(`${baseUrl}/tags`, tags);
+app.use(`${baseUrl}/categories`, categories);
 
 const port = process.env.PORT;
 app.listen(port, () => {
