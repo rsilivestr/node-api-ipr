@@ -32,7 +32,24 @@ export class UserController {
       const { rows } = await client.query('SELECT id, login, name, surname, avatar, created_at FROM users');
       res.send(rows);
     } catch {
-      res.send(500);
+      res.sendStatus(500);
+    }
+  };
+
+  static getOne: RequestHandler = async (req, res) => {
+    const { id } = req.params;
+    try {
+      const { rows, rowCount } = await client.query(
+        'SELECT id, login, name, surname, avatar, created_at FROM users WHERE id=$1',
+        [id]
+      );
+      if (rowCount == 0) {
+        res.sendStatus(404);
+      } else {
+        res.send(rows[0]);
+      }
+    } catch {
+      res.sendStatus(500);
     }
   };
 
