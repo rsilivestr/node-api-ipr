@@ -55,14 +55,19 @@ export class PostController {
         );
       }
 
-      if (title) {
-        conditionValues.push(`%${title}%`);
-        conditions.push(`LOWER(title) LIKE LOWER($${conditionValues.length})`);
+      if (category) {
+        conditionValues.push(category);
+        conditions.push(`category_id = $${conditionValues.length}`);
       }
 
       if (content) {
         conditionValues.push(`%${content}%`);
         conditions.push(`LOWER(body) LIKE LOWER($${conditionValues.length})`);
+      }
+
+      if (title) {
+        conditionValues.push(`%${title}%`);
+        conditions.push(`LOWER(title) LIKE LOWER($${conditionValues.length})`);
       }
 
       const queryString = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
