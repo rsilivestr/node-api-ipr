@@ -1,12 +1,12 @@
 import { RequestHandler } from 'express';
 
-import client from '../../client';
+import pool from '../../pool';
 
 export class TagController {
   static create: RequestHandler = async (req, res) => {
     try {
       const { name } = req.body;
-      await client.query('INSERT INTO tags (name) VALUES ($1)', [name]);
+      await pool.query('INSERT INTO tags (name) VALUES ($1)', [name]);
       res.sendStatus(201);
     } catch {
       res.sendStatus(500);
@@ -15,7 +15,7 @@ export class TagController {
 
   static read: RequestHandler = async (req, res) => {
     try {
-      const tags = await client.query('SELECT * FROM tags');
+      const tags = await pool.query('SELECT * FROM tags');
       res.send(tags.rows);
     } catch {
       res.sendStatus(500);

@@ -2,7 +2,7 @@ import { hash } from 'bcrypt';
 import { RequestHandler } from 'express';
 import { sign } from 'jsonwebtoken';
 
-import client from '../../client';
+import pool from '../../pool';
 
 const SALT_ROUNDS = 10;
 
@@ -11,11 +11,11 @@ export class UserController {
     try {
       const { login, password, name = '', surname = '', avatar = '' } = req.body;
       const passwordHash = await hash(password, SALT_ROUNDS);
-      const existingUsers = await client.query('SELECT login FROM users WHERE login=$1', [login]);
+      const existingUsers = await pool.query('SELECT login FROM users WHERE login=$1', [login]);
       if (existingUsers.rowCount > 0) {
         res.status(409).send('Such login already exists');
       } else {
-        await client.query(
+        await pool.query(
           'INSERT INTO users (login, passwd_hash, name, surname, avatar) VALUES ($1, $2, $3, $4, $5)',
           [login, passwordHash, name, surname, avatar]
         );
@@ -29,7 +29,7 @@ export class UserController {
 
   static read: RequestHandler = async (req, res) => {
     try {
-      const { rows } = await client.query('SELECT id, login, name, surname, avatar, created_at FROM users');
+      const { rows } = await pool.query('SELECT id, login, name, surname, avatar, created_at FROM users');
       res.send(rows);
     } catch {
       res.sendStatus(500);
@@ -39,7 +39,7 @@ export class UserController {
   static findById: RequestHandler = async (req, res) => {
     const { id } = req.params;
     try {
-      const { rows, rowCount } = await client.query(
+      const { rows, rowCount } = await pool.query(
         'SELECT id, login, name, surname, avatar, created_at FROM users WHERE id=$1',
         [id]
       );
