@@ -17,7 +17,7 @@ export const checkAuth: RequestHandler = async (req, res, next) => {
             .rows[0].id;
           const authorId = (await pool.query('SELECT id FROM authors WHERE user_id=$1', [userId])).rows[0].id;
 
-          req.body.authorId = authorId;
+          req.body.author_id = authorId;
           next();
         }
       });

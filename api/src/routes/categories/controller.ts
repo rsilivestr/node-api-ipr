@@ -5,8 +5,8 @@ import pool from '../../pool';
 export class CategoryController {
   static create: RequestHandler = async (req, res) => {
     try {
-      const { name, parentId = null } = req.body;
-      await pool.query('INSERT INTO categories (name, parent_id) VALUES ($1, $2)', [name, parentId]);
+      const { name, parent_id = null } = req.body;
+      await pool.query('INSERT INTO categories (name, parent_id) VALUES ($1, $2)', [name, parent_id]);
       res.sendStatus(201);
     } catch {
       res.sendStatus(500);

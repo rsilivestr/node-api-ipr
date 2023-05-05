@@ -32,6 +32,7 @@ CREATE TABLE posts (
   body TEXT NOT NULL,
   poster TEXT,
   images TEXT[],
+  tags INT[] DEFAULT '{}',
   author_id INT REFERENCES authors(id) NOT NULL,
   category_id INT REFERENCES categories(id),
   is_published BOOLEAN,
