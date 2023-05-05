@@ -23,24 +23,38 @@ export class PostController {
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      const { author = '0' } = req.query;
+      const { author } = req.query;
+      const query: Record<string, any> = {};
       let queryString = '';
-      queryString += author ? 'author_id = $1' : 'author_id = $1';
+
+      if (author) {
+        query.author_id = author;
+      }
+
+      if (Object.keys(query).length > 0) {
+        queryString = `WHERE ${Object.keys(query)
+          .map((key, index) => `${key} = $${index + 1}`)
+          .join(' AND ')}`;
+      }
+
       const { rows } = await pool.query(
-        `SELECT json_build_object (
-          'id', posts.id,
-          'title', posts.title,
-          'body', posts.body,
-          'poster', posts.poster,
-          'images', posts.images,
-          'created_at', posts.created_at,
-          'updated_at', posts.updated_at,
-          'published_at', posts.published_at,
-          'tags', ARRAY (
+        `SELECT id, title, body, poster, images, created_at, updated_at, published_at,
+          (
+            SELECT json_build_object (
+              'name', users.name,
+              'surname', users.surname,
+              'description', authors.description
+            )
+            AS author
+            FROM authors
+            JOIN users ON authors.user_id = users.id
+            WHERE authors.id = posts.author_id
+          ), 
+          ARRAY (
             SELECT name FROM tags
             WHERE tags.id = ANY (posts.tags)
-          ),
-          'categories', ARRAY (
+          ) as tags, 
+          ARRAY (
             WITH RECURSIVE postCategories AS (
               SELECT name FROM categories
               WHERE categories.id = posts.category_id
@@ -49,18 +63,10 @@ export class PostController {
               INNER JOIN categories ON categories.parent_id = c.id
               WHERE categories.id = posts.category_id
             ) SELECT * FROM postCategories
-          ),
-          'author', (
-            SELECT json_build_object (
-              'name', users.name,
-              'surname', users.surname,
-              'description', authors.description
-            )
-            FROM authors
-            JOIN users ON authors.user_id = users.id
-            WHERE authors.id = posts.author_id
-          )
-        ) AS data FROM posts`
+          ) as categories
+        FROM posts
+        ${queryString}`,
+        Object.values(query)
       );
       res.send(rows);
     } catch {
