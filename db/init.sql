@@ -11,7 +11,7 @@ CREATE TABLE users (
 
 CREATE TABLE authors (
   id SERIAL PRIMARY KEY,
-  user_id INT REFERENCES users(id) NOT NULL,
+  user_id INT REFERENCES users(id) UNIQUE NOT NULL,
   description TEXT
 );
 

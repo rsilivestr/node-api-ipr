@@ -23,19 +23,49 @@ export class PostController {
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      const { author } = req.query;
-      const query: Record<string, any> = {};
-      let queryString = '';
+      const {
+        author,
+        category,
+        content,
+        created_at,
+        created_at__gt,
+        created_at__lt,
+        limit,
+        offset,
+        order,
+        search,
+        tag,
+        tags__all,
+        tags__in,
+        title,
+      } = req.query;
+      const conditions: string[] = [];
+      const conditionValues: any[] = [];
 
       if (author) {
-        query.author_id = author;
+        conditionValues.push(`%${author}%`);
+        conditions.push(
+          `author_id IN (
+            SELECT authors.id FROM users
+            JOIN authors ON users.id = authors.user_id
+            WHERE 
+              CONCAT(LOWER(users.name), ' ', LOWER(users.surname)) 
+              LIKE LOWER($${conditionValues.length})
+          )`
+        );
       }
 
-      if (Object.keys(query).length > 0) {
-        queryString = `WHERE ${Object.keys(query)
-          .map((key, index) => `${key} = $${index + 1}`)
-          .join(' AND ')}`;
+      if (title) {
+        conditionValues.push(`%${title}%`);
+        conditions.push(`LOWER(title) LIKE LOWER($${conditionValues.length})`);
       }
+
+      if (content) {
+        conditionValues.push(`%${content}%`);
+        conditions.push(`LOWER(body) LIKE LOWER($${conditionValues.length})`);
+      }
+
+      const queryString = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
       const { rows } = await pool.query(
         `SELECT id, title, body, poster, images, created_at, updated_at, published_at,
@@ -43,6 +73,7 @@ export class PostController {
             SELECT json_build_object (
               'name', users.name,
               'surname', users.surname,
+              'avatar', users.avatar,
               'description', authors.description
             )
             AS author
@@ -66,7 +97,7 @@ export class PostController {
           ) as categories
         FROM posts
         ${queryString}`,
-        Object.values(query)
+        conditionValues
       );
       res.send(rows);
     } catch {
