@@ -65,6 +65,21 @@ export class PostController {
         conditions.push(`LOWER(body) LIKE LOWER($${conditionValues.length})`);
       }
 
+      if (tag) {
+        conditionValues.push(`${tag}`);
+        conditions.push(`$${conditionValues.length} = ANY(tags)`);
+      }
+
+      if (tags__in) {
+        conditionValues.push(JSON.parse(String(tags__in)));
+        conditions.push(`$${conditionValues.length} @> (tags)`);
+      }
+
+      if (tags__all) {
+        conditionValues.push(JSON.parse(String(tags__all)));
+        conditions.push(`$${conditionValues.length} <@ (tags)`);
+      }
+
       if (title) {
         conditionValues.push(`%${title}%`);
         conditions.push(`LOWER(title) LIKE LOWER($${conditionValues.length})`);

@@ -1,12 +1,21 @@
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(30),
-  surname VARCHAR(30),
+  name VARCHAR(50),
+  surname VARCHAR(50),
   avatar TEXT,
   login VARCHAR(30) UNIQUE,
   passwd_hash TEXT,
   is_admin BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO users (login, passwd_hash, name, surname, created_at)
+VALUES (
+  'roman',
+  '$2b$10$7d4WKblBU2ZoDUSSR.GEdevf4VSYpRXy0wkzXPeWtFjCUk8amYbpG',
+  'Roman',
+  'Silivestrov',
+  NOW()
 );
 
 CREATE TABLE authors (
@@ -15,16 +24,30 @@ CREATE TABLE authors (
   description TEXT
 );
 
+INSERT INTO authors (user_id, description) 
+VALUES (1, 'Hello, world!');
+
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(30) NOT NULL,
+  name VARCHAR(50) NOT NULL,
   parent_id INT REFERENCES categories(id)
 );
+
+INSERT INTO categories (name, parent_id) 
+VALUES
+  ('Category 1', NULL),
+  ('Category 2', 1),
+  ('Category 2.1', 2),
+  ('Category 2.2', 2),
+  ('Category 3', NULL);
 
 CREATE TABLE tags (
   id SERIAL PRIMARY KEY,
   name VARCHAR(30) NOT NULL
 );
+
+INSERT INTO tags (name) 
+VALUES ('Tag 1'), ('Tag 2'), ('Tag 3'), ('Tag 4');
 
 CREATE TABLE posts (
   id SERIAL PRIMARY KEY,

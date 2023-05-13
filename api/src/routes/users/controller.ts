@@ -40,7 +40,8 @@ export class UserController {
     const { id } = req.params;
     try {
       const { rows, rowCount } = await pool.query(
-        'SELECT id, login, name, surname, avatar, created_at FROM users WHERE id=$1',
+        // 'SELECT id, login, name, surname, avatar, created_at FROM users WHERE id=$1',
+        'SELECT * FROM users WHERE id=$1',
         [id]
       );
       if (rowCount === 0) {
