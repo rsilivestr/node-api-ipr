@@ -4,9 +4,11 @@ import { UserController } from './controller';
 
 const router = Router();
 
-router.get('/', UserController.read);
-router.get('/:id', UserController.findById);
-
 router.post('/', UserController.create);
+
+router.get('/', UserController.findMany);
+
+router.get('/:id', UserController.findOne);
+
 
 export default router;

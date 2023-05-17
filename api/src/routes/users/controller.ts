@@ -15,10 +15,13 @@ export class UserController {
       if (existingUsers.rowCount > 0) {
         res.status(409).send('Such login already exists');
       } else {
-        await pool.query(
-          'INSERT INTO users (login, passwd_hash, name, surname, avatar) VALUES ($1, $2, $3, $4, $5)',
-          [login, passwordHash, name, surname, avatar]
-        );
+        await pool.query('INSERT INTO users (login, passwd_hash, name, surname, avatar) VALUES ($1, $2, $3, $4, $5)', [
+          login,
+          passwordHash,
+          name,
+          surname,
+          avatar,
+        ]);
         const token = sign({ login }, String(process.env.JWT_SECRET));
         res.status(201).send({ token });
       }
@@ -27,7 +30,7 @@ export class UserController {
     }
   };
 
-  static read: RequestHandler = async (req, res) => {
+  static findMany: RequestHandler = async (req, res) => {
     try {
       const { rows } = await pool.query('SELECT id, login, name, surname, avatar, created_at FROM users');
       res.send(rows);
@@ -36,12 +39,11 @@ export class UserController {
     }
   };
 
-  static findById: RequestHandler = async (req, res) => {
+  static findOne: RequestHandler = async (req, res) => {
     const { id } = req.params;
     try {
       const { rows, rowCount } = await pool.query(
-        // 'SELECT id, login, name, surname, avatar, created_at FROM users WHERE id=$1',
-        'SELECT * FROM users WHERE id=$1',
+        'SELECT id, login, name, surname, avatar, created_at FROM users WHERE id=$1',
         [id]
       );
       if (rowCount === 0) {
