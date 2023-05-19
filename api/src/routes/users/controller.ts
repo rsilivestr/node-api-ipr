@@ -3,13 +3,14 @@ import { RequestHandler } from 'express';
 import { sign } from 'jsonwebtoken';
 
 import pool from '../../pool';
+import { UserModel } from './model';
 
 const SALT_ROUNDS = 10;
 
 export class UserController {
   static create: RequestHandler = async (req, res) => {
     try {
-      const { login, password, name = '', surname = '', avatar = '' } = req.body;
+      const { login, password, name, surname, avatar } = req.body;
       const passwordHash = await hash(password, SALT_ROUNDS);
       const existingUsers = await pool.query('SELECT login FROM users WHERE login=$1', [login]);
       if (existingUsers.rowCount > 0) {
@@ -39,17 +40,18 @@ export class UserController {
     }
   };
 
-  static findOne: RequestHandler = async (req, res) => {
-    const { id } = req.params;
+  static getById: RequestHandler = async (req, res) => {
+    const { user_id } = req.body;
+    if (!user_id) {
+      res.sendStatus(400);
+      return;
+    }
     try {
-      const { rows, rowCount } = await pool.query(
-        'SELECT id, login, name, surname, avatar, created_at FROM users WHERE id=$1',
-        [id]
-      );
-      if (rowCount === 0) {
+      const user = UserModel.findOne(user_id);
+      if (!user) {
         res.sendStatus(404);
       } else {
-        res.send(rows[0]);
+        res.send(user);
       }
     } catch {
       res.sendStatus(500);
