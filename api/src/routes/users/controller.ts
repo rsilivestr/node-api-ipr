@@ -1,30 +1,16 @@
-import { hash } from 'bcrypt';
 import { RequestHandler } from 'express';
-import { sign } from 'jsonwebtoken';
 
 import pool from '../../pool';
 import { UserModel } from './model';
 
-const SALT_ROUNDS = 10;
-
 export class UserController {
   static create: RequestHandler = async (req, res) => {
     try {
-      const { login, password, name, surname, avatar } = req.body;
-      const passwordHash = await hash(password, SALT_ROUNDS);
-      const existingUsers = await pool.query('SELECT login FROM users WHERE login=$1', [login]);
-      if (existingUsers.rowCount > 0) {
-        res.status(409).send('Such login already exists');
-      } else {
-        await pool.query('INSERT INTO users (login, passwd_hash, name, surname, avatar) VALUES ($1, $2, $3, $4, $5)', [
-          login,
-          passwordHash,
-          name,
-          surname,
-          avatar,
-        ]);
-        const token = sign({ login }, String(process.env.JWT_SECRET));
+      const token = await UserModel.create(req.body);
+      if (token) {
         res.status(201).send({ token });
+      } else {
+        res.sendStatus(409);
       }
     } catch {
       res.sendStatus(500);
