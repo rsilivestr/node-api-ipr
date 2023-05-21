@@ -9,13 +9,12 @@ const baseUrl = 'http://localhost:3000/api/v1';
 describe('User controller', () => {
   test('Find user without Authorization header', async () => {
     const response = await request(baseUrl).get(`/users/me`);
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
   });
 
   test('Find user with Authorization header', async () => {
     const response = await request(baseUrl).get(`/users/me`).set('Authorization', AUTHORIZATION_HEADER);
     expect(response.statusCode).toBe(200);
+    expect(response.body.login).toBe('roman');
   });
-
-  // test('find user by token')
 });

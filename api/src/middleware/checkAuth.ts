@@ -15,15 +15,17 @@ export const checkAuth: RequestHandler = async (req, res, next) => {
         } else {
           const userId = (await pool.query('SELECT id FROM users WHERE login=$1', [(payload as JwtPayload)?.login]))
             .rows[0].id;
-          const authorId = (await pool.query('SELECT id FROM authors WHERE user_id=$1', [userId])).rows[0].id;
-
           req.body.user_id = userId;
-          req.body.author_id = authorId;
+
+          const { rows, rowCount } = await pool.query('SELECT id FROM authors WHERE user_id=$1', [userId]);
+          if (rowCount > 0) {
+            req.body.author_id = rows[0].id;
+          }
           next();
         }
       });
     } else {
-      res.sendStatus(401);
+      res.sendStatus(400);
     }
   } catch {
     res.sendStatus(500);

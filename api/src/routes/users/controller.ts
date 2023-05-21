@@ -47,7 +47,7 @@ export class UserController {
       return;
     }
     try {
-      const user = UserModel.findOne(user_id);
+      const user = await UserModel.findOne(user_id);
       if (!user) {
         res.sendStatus(404);
       } else {
