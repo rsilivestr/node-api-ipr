@@ -9,13 +9,19 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-INSERT INTO users (login, passwd_hash, name, surname, created_at)
+INSERT INTO users (login, passwd_hash, name, surname, is_admin)
 VALUES (
+  'admin',
+  '$2b$10$7d4WKblBU2ZoDUSSR.GEdevf4VSYpRXy0wkzXPeWtFjCUk8amYbpG',
+  'Admin',
+  'Adminov',
+  'true'
+), (
   'roman',
   '$2b$10$7d4WKblBU2ZoDUSSR.GEdevf4VSYpRXy0wkzXPeWtFjCUk8amYbpG',
   'Roman',
-  'Silivestrov',
-  NOW()
+  'Romanov',
+  'true'
 );
 
 CREATE TABLE authors (
@@ -25,7 +31,7 @@ CREATE TABLE authors (
 );
 
 INSERT INTO authors (user_id, description) 
-VALUES (1, 'Hello, world!');
+VALUES (2, 'Author description');
 
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
