@@ -5,8 +5,10 @@ import { UserController } from './controller';
 
 const router = Router();
 
+router.get('/me', checkAuth, UserController.getById);
+
 router.post('/', UserController.create);
 
-router.get('/me', checkAuth, UserController.getById);
+router.delete('/:id', checkAuth, UserController.delete);
 
 export default router;

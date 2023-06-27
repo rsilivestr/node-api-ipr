@@ -13,10 +13,11 @@ export const checkAuth: RequestHandler = async (req, res, next) => {
         if (err) {
           res.sendStatus(403);
         } else {
-          const user = (await pool.query('SELECT id FROM users WHERE login=$1', [(payload as JwtPayload)?.login]))
+          const user = (await pool.query('SELECT id, is_admin FROM users WHERE login=$1', [(payload as JwtPayload)?.login]))
             .rows[0];
           req.body.user_id = user.id;
           req.body.is_admin = user.is_admin;
+          console.log('CHECK AUTH USER: ', user)
 
           const { rows, rowCount } = await pool.query('SELECT id FROM authors WHERE user_id=$1', [user.id]);
           if (rowCount > 0) {

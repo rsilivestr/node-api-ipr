@@ -21,7 +21,7 @@ VALUES (
   '$2b$10$7d4WKblBU2ZoDUSSR.GEdevf4VSYpRXy0wkzXPeWtFjCUk8amYbpG',
   'Roman',
   'Romanov',
-  'true'
+  'false'
 );
 
 CREATE TABLE authors (

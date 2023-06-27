@@ -1,6 +1,5 @@
 import { RequestHandler } from 'express';
 
-import pool from '../../pool';
 import { UserModel } from './model';
 
 export class UserController {
@@ -17,22 +16,14 @@ export class UserController {
     }
   };
 
-  static findMany: RequestHandler = async (req, res) => {
-    try {
-      const { rows } = await pool.query('SELECT id, login, name, surname, avatar, created_at FROM users');
-      res.send(rows);
-    } catch {
-      res.sendStatus(500);
-    }
-  };
-
   static getById: RequestHandler = async (req, res) => {
-    const { user_id } = req.body;
-    if (!user_id) {
-      res.sendStatus(400);
-      return;
-    }
     try {
+      const { user_id } = req.body;
+      if (!user_id) {
+        res.sendStatus(400);
+        return;
+      }
+
       const user = await UserModel.findOne(user_id);
       if (!user) {
         res.sendStatus(404);
@@ -44,6 +35,22 @@ export class UserController {
     }
   };
 
-  static update() {}
-  static delete() {}
+  static delete: RequestHandler = async (req, res) => {
+    try {
+      if (!req.body?.is_admin) {
+        res.sendStatus(400);
+        return;
+      }
+      const { id } = req.params;
+      console.debug(req.body, id);
+      const success = await UserModel.delete(id);
+      if (success) {
+        res.sendStatus(204);
+      } else {
+        res.sendStatus(404);
+      }
+    } catch {
+      res.sendStatus(500);
+    }
+  };
 }
