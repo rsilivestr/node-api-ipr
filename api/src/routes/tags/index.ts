@@ -13,4 +13,6 @@ router.get('/:id', TagController.getById);
 
 router.patch('/:id', checkAuth, TagController.update);
 
+router.delete('/:id', checkAuth, TagController.delete);
+
 export default router;

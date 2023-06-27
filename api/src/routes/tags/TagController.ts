@@ -54,4 +54,17 @@ export class TagController {
       res.sendStatus(500);
     }
   };
+
+  static delete: RequestHandler = async (req, res) => {
+    try {
+      if (!req.body?.is_admin) {
+        res.sendStatus(404);
+        return;
+      }
+      const success = await TagModel.delete(req.params.id);
+      res.sendStatus(success ? 204 : 404);
+    } catch {
+      res.sendStatus(500);
+    }
+  }
 }

@@ -41,28 +41,28 @@ describe('User controller', () => {
   });
 
   describe('DELETE /users/:id', () => {
-    let createdUserId = 0;
+    let testId = 0;
 
     beforeAll(async () => {
       const newUser = generateUserData();
       const userCreateResponse = await request(process.env.LOCALHOST).post('/users').send(newUser);
       const createdUserAuth = `Bearer ${userCreateResponse.body.token}`;
       const createdUserResponse = await request(process.env.LOCALHOST).get('/users/me').set('Authorization', createdUserAuth);
-      createdUserId = createdUserResponse.body.id;
+      testId = createdUserResponse.body.id;
     });
 
     test('Unauthorized delete should fail with 404', async () => {
-      const response = await request(process.env.LOCALHOST).delete(`/users/${createdUserId}`);
+      const response = await request(process.env.LOCALHOST).delete(`/users/${testId}`);
       expect(response.statusCode).toBe(404);
     });
 
     test('Non-admin delete should fail with 404', async () => {
-      const response = await request(process.env.LOCALHOST).delete(`/users/${createdUserId}`).set('Authorization', process.env.AUTH_USER!);
+      const response = await request(process.env.LOCALHOST).delete(`/users/${testId}`).set('Authorization', process.env.AUTH_USER!);
       expect(response.statusCode).toBe(404);
     });
 
     test('Admin should be able to delete a user', async () => {
-      const response = await request(process.env.LOCALHOST).delete(`/users/${createdUserId}`).set('Authorization', process.env.AUTH_ADMIN!);
+      const response = await request(process.env.LOCALHOST).delete(`/users/${testId}`).set('Authorization', process.env.AUTH_ADMIN!);
       expect(response.statusCode).toBe(204);
     });
 

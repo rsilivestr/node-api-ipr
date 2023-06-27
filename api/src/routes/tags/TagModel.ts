@@ -22,12 +22,12 @@ export class TagModel {
   }
 
   static async update(id: string, newName: string) {
-    console.debug(id, newName);
-    const { rows, rowCount } = await pool.query('UPDATE tags SET name=$2 WHERE id=$1 RETURNING *', [id, newName]);
-    console.debug(rows[0]);
-
+    const { rowCount } = await pool.query('UPDATE tags SET name=$2 WHERE id=$1 RETURNING *', [id, newName]);
     return rowCount === 1;
   }
 
-  static async delete(id: string) {}
+  static async delete(id: string) {
+    const { rowCount } = await pool.query('DELETE FROM tags WHERE id=$1', [id]);
+    return rowCount === 1;
+  }
 }

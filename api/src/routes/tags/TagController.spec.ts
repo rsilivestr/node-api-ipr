@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { beforeAll, describe, expect, test } from '@jest/globals';
 import request from 'supertest';
 
 describe('Tag controller', () => {
@@ -75,5 +75,25 @@ describe('Tag controller', () => {
         .set('Authorization', process.env.AUTH_ADMIN!);
       expect(response.statusCode).toBe(204);
     });
+  });
+
+  describe('DELETE /tags/:id', () => {
+    let testId: number;
+
+    beforeAll(async () => {
+      const response = await request(process.env.LOCALHOST)
+        .post('/tags')
+        .send({ name: `Test ${Math.random()}` })
+        .set('Authorization', process.env.AUTH_ADMIN!);
+      testId = response.body.id;
+    });
+
+    test('Should return 404 to unauthorized requests', async () => {
+      const response = await request(process.env.LOCALHOST).delete(`/tags/${testId}`);
+    });
+
+    test('Should return 404 to non-admin users', async () => {});
+
+    test('Should return 204 to admin users', async () => {});
   });
 });
