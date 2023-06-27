@@ -11,7 +11,7 @@ export const checkAuth: RequestHandler = async (req, res, next) => {
       const token = authHeader.split(' ')[1];
       jwt.verify(token, String(process.env.JWT_SECRET), async (err, payload) => {
         if (err) {
-          res.sendStatus(403);
+          res.sendStatus(404);
         } else {
           const user = (await pool.query('SELECT id, is_admin FROM users WHERE login=$1', [(payload as JwtPayload)?.login]))
             .rows[0];
@@ -26,7 +26,7 @@ export const checkAuth: RequestHandler = async (req, res, next) => {
         }
       });
     } else {
-      res.sendStatus(400);
+      res.sendStatus(404);
     }
   } catch {
     res.sendStatus(500);

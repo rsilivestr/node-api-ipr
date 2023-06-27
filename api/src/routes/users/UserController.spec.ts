@@ -15,7 +15,7 @@ describe('User controller', () => {
   describe('GET /users/me', () => {
     test('Find user without Authorization header', async () => {
       const response = await request(process.env.LOCALHOST).get('/users/me');
-      expect(response.statusCode).toBe(400);
+      expect(response.statusCode).toBe(404);
     });
 
     test('Find user with Authorization header', async () => {
@@ -51,14 +51,14 @@ describe('User controller', () => {
       createdUserId = createdUserResponse.body.id;
     });
 
-    test('Unauthorized delete should fail with 400', async () => {
+    test('Unauthorized delete should fail with 404', async () => {
       const response = await request(process.env.LOCALHOST).delete(`/users/${createdUserId}`);
-      expect(response.statusCode).toBe(400);
+      expect(response.statusCode).toBe(404);
     });
 
-    test('Non-admin delete should fail with 400', async () => {
+    test('Non-admin delete should fail with 404', async () => {
       const response = await request(process.env.LOCALHOST).delete(`/users/${createdUserId}`).set('Authorization', process.env.AUTH_USER!);
-      expect(response.statusCode).toBe(400);
+      expect(response.statusCode).toBe(404);
     });
 
     test('Admin should be able to delete a user', async () => {
