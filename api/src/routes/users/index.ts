@@ -5,9 +5,9 @@ import { UserController } from './UserController';
 
 const router = Router();
 
-router.get('/me', checkAuth, UserController.getById);
-
 router.post('/', UserController.create);
+
+router.get('/me', checkAuth, UserController.getById);
 
 router.delete('/:id', checkAuth, UserController.delete);
 

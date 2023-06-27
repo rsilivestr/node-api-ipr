@@ -51,4 +51,29 @@ describe('Tag controller', () => {
       expect(typeof response.body.id).toBe(typeof 1);
     });
   });
+
+  describe('PATCH /tags/:id', () => {
+    test('Should return 404 to unauthorized requests', async () => {
+      const response = await request(process.env.LOCALHOST)
+        .patch('/tags/1')
+        .send({ name: `Test ${Math.random()}` });
+      expect(response.statusCode).toBe(404);
+    });
+
+    test('Should return 404 to non-admin users', async () => {
+      const response = await request(process.env.LOCALHOST)
+        .patch('/tags/1')
+        .send({ name: `Test ${Math.random()}` })
+        .set('Authorization', process.env.AUTH_USER!);
+      expect(response.statusCode).toBe(404);
+    });
+
+    test('Should return 204 to admin users', async () => {
+      const response = await request(process.env.LOCALHOST)
+        .patch('/tags/1')
+        .send({ name: `Test ${Math.random()}` })
+        .set('Authorization', process.env.AUTH_ADMIN!);
+      expect(response.statusCode).toBe(204);
+    });
+  });
 });

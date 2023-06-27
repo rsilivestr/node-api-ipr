@@ -40,5 +40,18 @@ export class TagController {
     } catch {
       res.sendStatus(500);
     }
-  }
+  };
+
+  static update: RequestHandler = async (req, res) => {
+    try {
+      if (!req.body?.is_admin) {
+        res.sendStatus(404);
+        return;
+      }
+      const success = await TagModel.update(req.params.id, req.body.name);
+      res.sendStatus(success ? 204 : 404);
+    } catch {
+      res.sendStatus(500);
+    }
+  };
 }

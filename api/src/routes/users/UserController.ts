@@ -42,11 +42,7 @@ export class UserController {
         return;
       }
       const success = await UserModel.delete(req.params.id);
-      if (success) {
-        res.sendStatus(204);
-      } else {
-        res.sendStatus(404);
-      }
+      res.sendStatus(success ? 204 : 404);
     } catch {
       res.sendStatus(500);
     }
