@@ -5,7 +5,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "nodemon -q src/index.ts",
-    "test": "jest"
+    "test": "DOTENV_CONFIG_PATH=.env.test jest"
   },
   "dependencies": {
     "@types/supertest": "^2.0.12",

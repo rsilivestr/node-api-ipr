@@ -17,7 +17,6 @@ export const checkAuth: RequestHandler = async (req, res, next) => {
             .rows[0];
           req.body.user_id = user.id;
           req.body.is_admin = user.is_admin;
-          console.log('CHECK AUTH USER: ', user)
 
           const { rows, rowCount } = await pool.query('SELECT id FROM authors WHERE user_id=$1', [user.id]);
           if (rowCount > 0) {
