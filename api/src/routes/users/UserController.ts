@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 
-import { UserModel } from './model';
+import { UserModel } from './UserModel';
 
 export class UserController {
   static create: RequestHandler = async (req, res) => {

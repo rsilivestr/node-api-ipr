@@ -10,7 +10,7 @@ const AUTH_USER =
 
 const baseUrl = 'http://localhost:3000/api/v1';
 
-const generateUserData = () => ({
+const generateUserData: () => UserCreateData = () => ({
   login: `ivan_${(Math.random() * 1000).toFixed(0)}`,
   password: '123',
   name: 'Ivan',
