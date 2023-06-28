@@ -90,10 +90,28 @@ describe('Tag controller', () => {
 
     test('Should return 404 to unauthorized requests', async () => {
       const response = await request(process.env.LOCALHOST).delete(`/tags/${testId}`);
+      expect(response.statusCode).toBe(404);
     });
 
-    test('Should return 404 to non-admin users', async () => {});
+    test('Should return 404 to non-admin users', async () => {
+      const response = await request(process.env.LOCALHOST)
+        .delete(`/tags/${testId}`)
+        .set('Authorization', process.env.AUTH_USER!);
+      expect(response.statusCode).toBe(404);
+    });
 
-    test('Should return 204 to admin users', async () => {});
+    test('Should return 204 to admin users', async () => {
+      const response = await request(process.env.LOCALHOST)
+        .delete(`/tags/${testId}`)
+        .set('Authorization', process.env.AUTH_ADMIN!);
+      expect(response.statusCode).toBe(204);
+    });
+
+    test('Should return 404 to admin users if id does not exist', async () => {
+      const response = await request(process.env.LOCALHOST)
+        .delete('/tags/0')
+        .set('Authorization', process.env.AUTH_ADMIN!);
+      expect(response.statusCode).toBe(404);
+    });
   });
 });
