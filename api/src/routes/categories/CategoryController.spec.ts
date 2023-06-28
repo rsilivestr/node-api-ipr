@@ -35,14 +35,15 @@ describe('Tag controller', () => {
     });
 
     test('Should respond with 409 if category name already exists', async () => {
+      const name = `Test ${Math.random()}`;
       await request(process.env.LOCALHOST)
         .post('/categories')
-        .send({ name: `Test 999` })
+        .send({ name })
         .set('Authorization', process.env.AUTH_ADMIN!);
 
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
-        .send({ name: `Test 999` })
+        .send({ name })
         .set('Authorization', process.env.AUTH_ADMIN!);
 
       expect(response.statusCode).toBe(409);

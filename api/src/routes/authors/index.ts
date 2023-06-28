@@ -1,11 +1,12 @@
 import { Router } from 'express';
 
-import { AuthorController } from './controller';
+import { authMiddleware } from '../../middleware/auth';
+import { AuthorController } from './AuthorController';
 
 const router = Router();
 
-router.get('/', AuthorController.read);
+router.post('/', authMiddleware(), AuthorController.create);
 
-router.post('/', AuthorController.create);
+router.get('/', authMiddleware(), AuthorController.read);
 
 export default router;

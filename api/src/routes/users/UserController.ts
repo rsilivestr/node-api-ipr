@@ -18,7 +18,7 @@ export class UserController {
 
   static getById: RequestHandler = async (req, res) => {
     try {
-      const { user_id } = req.body;
+      const { user_id } = req.body.auth;
       if (!user_id) {
         res.sendStatus(400);
         return;

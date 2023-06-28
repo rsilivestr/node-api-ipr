@@ -33,12 +33,14 @@ export const authMiddleware: (params?: Params) => RequestHandler =
             return;
           }
 
-          req.body.user_id = user.id;
-          req.body.is_admin = user.is_admin;
+          req.body.auth = {
+            user_id: user.id,
+            is_admin: user.is_admin,
+          };
 
           const { rows, rowCount } = await pool.query('SELECT id FROM authors WHERE user_id=$1', [user.id]);
           if (rowCount > 0) {
-            req.body.author_id = rows[0].id;
+            req.body.auth_author_id = rows[0].id;
           }
           next();
         }
