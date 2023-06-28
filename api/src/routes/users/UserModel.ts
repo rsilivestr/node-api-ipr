@@ -36,7 +36,6 @@ export class UserModel {
   }
 
   static async delete(id: string): Promise<boolean> {
-    // TODO Handle relations
     const { rowCount } = await pool.query('DELETE FROM users WHERE id=$1 RETURNING *', [id]);
 
     return rowCount === 1;

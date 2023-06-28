@@ -17,7 +17,7 @@ export class TagModel {
   }
 
   static async findMany() {
-    const { rows } = await pool.query('SELECT * FROM tags');
+    const { rows } = await pool.query('SELECT * FROM tags ORDER BY id');
     return rows;
   }
 

@@ -11,4 +11,6 @@ router.get('/', CategoryController.findMany);
 
 router.get('/:id', CategoryController.findOne);
 
+router.patch('/:id', checkAuth, CategoryController.update);
+
 export default router;

@@ -33,7 +33,7 @@ export class CategoryController {
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      const { rows } = await pool.query('SELECT * FROM categories');
+      const { rows } = await pool.query('SELECT * FROM categories ORDER BY id');
       res.send(rows);
     } catch {
       res.sendStatus(500);
@@ -48,6 +48,40 @@ export class CategoryController {
       } else {
         res.send(rows[0]);
       }
+    } catch {
+      res.sendStatus(500);
+    }
+  };
+
+  static update: RequestHandler = async (req, res) => {
+    try {
+      if (!req.body.is_admin) {
+        res.sendStatus(404);
+        return;
+      }
+
+      if (Number(req.params.id) === req.body.parent_id) {
+        res.sendStatus(400);
+        return;
+      }
+
+      const found = await pool.query('SELECT * FROM categories WHERE id=$1', [req.params.id]);
+
+      if (found.rowCount === 0) {
+        res.sendStatus(404);
+        return;
+      }
+
+      const newName = req.body.name ?? found.rows[0].name;
+      const newParentId = req.body.parent_id ?? found.rows[0].parent_id;
+
+      const { rowCount } = await pool.query(
+        `UPDATE categories
+         SET name=$2, parent_id=$3
+         WHERE id=$1 RETURNING *`,
+        [req.params.id, newName, newParentId]
+      );
+      res.sendStatus(rowCount === 1 ? 204 : 404);
     } catch {
       res.sendStatus(500);
     }
