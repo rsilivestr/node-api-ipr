@@ -1,16 +1,18 @@
 import { Router } from 'express';
 
-import { checkAuth } from '../../middleware/checkAuth';
+import { authMiddleware } from '../../middleware/auth';
 import { CategoryController } from './CategoryController';
 
 const router = Router();
 
-router.post('/', checkAuth, CategoryController.create);
+router.post('/', authMiddleware(), CategoryController.create);
 
 router.get('/', CategoryController.findMany);
 
 router.get('/:id', CategoryController.findOne);
 
-router.patch('/:id', checkAuth, CategoryController.update);
+router.patch('/:id', authMiddleware(), CategoryController.update);
+
+router.delete('/:id', authMiddleware(), CategoryController.delete);
 
 export default router;

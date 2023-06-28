@@ -1,14 +1,14 @@
 import { Router } from 'express';
 
-import { checkAuth } from '../../middleware/checkAuth';
+import { authMiddleware } from '../../middleware/auth';
 import { UserController } from './UserController';
 
 const router = Router();
 
 router.post('/', UserController.create);
 
-router.get('/me', checkAuth, UserController.getById);
+router.get('/me', authMiddleware({ allowUser: true }), UserController.getById);
 
-router.delete('/:id', checkAuth, UserController.delete);
+router.delete('/:id', authMiddleware(), UserController.delete);
 
 export default router;

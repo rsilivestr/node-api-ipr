@@ -37,10 +37,6 @@ export class UserController {
 
   static delete: RequestHandler = async (req, res) => {
     try {
-      if (!req.body?.is_admin) {
-        res.sendStatus(404);
-        return;
-      }
       const success = await UserModel.delete(req.params.id);
       res.sendStatus(success ? 204 : 404);
     } catch {

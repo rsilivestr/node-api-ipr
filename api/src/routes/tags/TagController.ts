@@ -5,10 +5,6 @@ import { TagModel } from './TagModel';
 export class TagController {
   static create: RequestHandler = async (req, res) => {
     try {
-      if (!req.body?.is_admin) {
-        res.sendStatus(404);
-        return;
-      }
       const id = await TagModel.create(req.body.name);
       if (id) {
         res.status(201).send({ id });
@@ -44,10 +40,6 @@ export class TagController {
 
   static update: RequestHandler = async (req, res) => {
     try {
-      if (!req.body?.is_admin) {
-        res.sendStatus(404);
-        return;
-      }
       const success = await TagModel.update(req.params.id, req.body.name);
       res.sendStatus(success ? 204 : 404);
     } catch {
@@ -57,10 +49,6 @@ export class TagController {
 
   static delete: RequestHandler = async (req, res) => {
     try {
-      if (!req.body?.is_admin) {
-        res.sendStatus(404);
-        return;
-      }
       const success = await TagModel.delete(req.params.id);
       res.sendStatus(success ? 204 : 404);
     } catch {

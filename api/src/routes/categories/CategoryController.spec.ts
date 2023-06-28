@@ -107,8 +107,8 @@ describe('Tag controller', () => {
 
       const response = await request(process.env.LOCALHOST).get('/categories/3');
 
-      expect(response.body.name).toEqual(expectedName);
-      expect(response.body.parent_id).toEqual(expectedParent);
+      expect(response.body.name).toBe(expectedName);
+      expect(response.body.parent_id).toBe(expectedParent);
     });
 
     test('Should not be able to set parent_id === id', async () => {
@@ -125,6 +125,44 @@ describe('Tag controller', () => {
         .send({ parent_id: 0 })
         .set('Authorization', process.env.AUTH_ADMIN!);
       expect(response.statusCode).toBe(500);
+    });
+  });
+
+  describe('DELETE /categories/:id', () => {
+    let testId: number;
+
+    beforeAll(async () => {
+      const response = await request(process.env.LOCALHOST)
+        .post('/categories')
+        .send({ name: `Test ${Math.random()}` })
+        .set('Authorization', process.env.AUTH_ADMIN!);
+      testId = response.body.id;
+    });
+
+    test('Should respond with 404 to unauthorized request', async () => {
+      const response = await request(process.env.LOCALHOST).delete(`/categories/${testId}`);
+      expect(response.statusCode).toBe(404);
+    });
+
+    test('Should respond with 404 to non-admin request', async () => {
+      const response = await request(process.env.LOCALHOST)
+        .delete(`/categories/${testId}`)
+        .set('Authorization', process.env.AUTH_USER!);
+      expect(response.statusCode).toBe(404);
+    });
+
+    test('Should respond with 204 admin request', async () => {
+      const response = await request(process.env.LOCALHOST)
+        .delete(`/categories/${testId}`)
+        .set('Authorization', process.env.AUTH_ADMIN!);
+      expect(response.statusCode).toBe(204);
+    });
+
+    test('Should respond with 404 when deleting nonexistent category', async () => {
+      const response = await request(process.env.LOCALHOST)
+        .delete('/categories/0')
+        .set('Authorization', process.env.AUTH_ADMIN!);
+      expect(response.statusCode).toBe(404);
     });
   });
 });

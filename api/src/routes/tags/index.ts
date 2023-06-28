@@ -1,18 +1,18 @@
 import { Router } from 'express';
 
-import { checkAuth } from '../../middleware/checkAuth';
+import { authMiddleware } from '../../middleware/auth';
 import { TagController } from './TagController';
 
 const router = Router();
 
-router.post('/', checkAuth, TagController.create);
+router.post('/', authMiddleware(), TagController.create);
 
 router.get('/', TagController.getAll);
 
 router.get('/:id', TagController.getById);
 
-router.patch('/:id', checkAuth, TagController.update);
+router.patch('/:id', authMiddleware(), TagController.update);
 
-router.delete('/:id', checkAuth, TagController.delete);
+router.delete('/:id', authMiddleware(), TagController.delete);
 
 export default router;
