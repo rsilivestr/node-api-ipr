@@ -1,11 +1,12 @@
 import { Router } from 'express';
 
-import { CategoryController } from './controller';
+import { checkAuth } from '../../middleware/checkAuth';
+import { CategoryController } from './CategoryController';
 
 const router = Router();
 
-router.get('/', CategoryController.read);
+router.post('/', checkAuth, CategoryController.create);
 
-router.post('/', CategoryController.create);
+router.get('/', CategoryController.getAll);
 
 export default router;

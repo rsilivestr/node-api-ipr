@@ -6,7 +6,7 @@ describe('Tag controller', () => {
     test('Should return an array of tags', async () => {
       const response = await request(process.env.LOCALHOST).get('/tags');
       expect(response.statusCode).toBe(200);
-      expect(typeof response.body).toBe(typeof []);
+      expect(response.body).toBeInstanceOf(Array);
       expect(response.body[0]).toHaveProperty('id');
       expect(response.body[0]).toHaveProperty('name');
     });
@@ -48,7 +48,7 @@ describe('Tag controller', () => {
         .send({ name: `Test ${Math.random()}` })
         .set('Authorization', process.env.AUTH_ADMIN!);
       expect(response.statusCode).toBe(201);
-      expect(typeof response.body.id).toBe(typeof 1);
+      expect(response.body).toHaveProperty('id');
     });
   });
 

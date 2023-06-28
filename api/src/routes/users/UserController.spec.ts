@@ -19,7 +19,9 @@ describe('User controller', () => {
     });
 
     test('Find user with Authorization header', async () => {
-      const response = await request(process.env.LOCALHOST).get('/users/me').set('Authorization', process.env.AUTH_USER!);
+      const response = await request(process.env.LOCALHOST)
+        .get('/users/me')
+        .set('Authorization', process.env.AUTH_USER!);
       expect(response.statusCode).toBe(200);
       expect(response.body.login).toBe('roman');
     });
@@ -31,7 +33,7 @@ describe('User controller', () => {
     test('Creating new user', async () => {
       const response = await request(process.env.LOCALHOST).post('/users').send(newUser);
       expect(response.statusCode).toBe(201);
-      expect(typeof response.body.token).toBe(typeof '');
+      expect(response.body).toHaveProperty('token');
     });
 
     test('Creating user with existing login should return 409', async () => {
@@ -47,7 +49,9 @@ describe('User controller', () => {
       const newUser = generateUserData();
       const userCreateResponse = await request(process.env.LOCALHOST).post('/users').send(newUser);
       const createdUserAuth = `Bearer ${userCreateResponse.body.token}`;
-      const createdUserResponse = await request(process.env.LOCALHOST).get('/users/me').set('Authorization', createdUserAuth);
+      const createdUserResponse = await request(process.env.LOCALHOST)
+        .get('/users/me')
+        .set('Authorization', createdUserAuth);
       testId = createdUserResponse.body.id;
     });
 
@@ -57,17 +61,23 @@ describe('User controller', () => {
     });
 
     test('Non-admin delete should fail with 404', async () => {
-      const response = await request(process.env.LOCALHOST).delete(`/users/${testId}`).set('Authorization', process.env.AUTH_USER!);
+      const response = await request(process.env.LOCALHOST)
+        .delete(`/users/${testId}`)
+        .set('Authorization', process.env.AUTH_USER!);
       expect(response.statusCode).toBe(404);
     });
 
     test('Admin should be able to delete a user', async () => {
-      const response = await request(process.env.LOCALHOST).delete(`/users/${testId}`).set('Authorization', process.env.AUTH_ADMIN!);
+      const response = await request(process.env.LOCALHOST)
+        .delete(`/users/${testId}`)
+        .set('Authorization', process.env.AUTH_ADMIN!);
       expect(response.statusCode).toBe(204);
     });
 
     test('Deleting non-existent user user should return 404', async () => {
-      const response = await request(process.env.LOCALHOST).delete('/users/0').set('Authorization', process.env.AUTH_ADMIN!);
+      const response = await request(process.env.LOCALHOST)
+        .delete('/users/0')
+        .set('Authorization', process.env.AUTH_ADMIN!);
       expect(response.statusCode).toBe(404);
     });
   });
