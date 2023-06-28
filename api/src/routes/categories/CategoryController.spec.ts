@@ -59,4 +59,14 @@ describe('Tag controller', () => {
       expect(response.body[0]).toHaveProperty('parent_id');
     });
   });
+
+  describe('GET /categories/:id', () => {
+    test('Should return existing category', async () => {
+      const response = await request(process.env.LOCALHOST).get('/categories/1');
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).toHaveProperty('name');
+      expect(response.body).toHaveProperty('parent_id');
+    });
+  });
 });
