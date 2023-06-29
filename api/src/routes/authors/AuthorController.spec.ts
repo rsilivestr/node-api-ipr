@@ -38,7 +38,6 @@ describe('Author controller', () => {
     });
 
     test('Should create an author and respond with 201 on success', async () => {
-      console.debug(testUserId);
       const response = await request(process.env.LOCALHOST)
         .post('/authors')
         .send({ user_id: testUserId, description: 'lorem ipsum' })
