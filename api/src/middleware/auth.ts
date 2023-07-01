@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt, { JsonWebTokenError, JwtPayload, verify } from 'jsonwebtoken';
 
 import pool from '../pool';
 
@@ -20,32 +20,38 @@ export const authMiddleware: (params?: Params) => RequestHandler =
       }
 
       const token = authHeader.split(' ')[1];
-      jwt.verify(token, String(process.env.ACCESS_TOKEN_SECRET), async (err, payload) => {
-        if (err) {
-          res.sendStatus(404);
-        } else {
-          const user = (
-            await pool.query('SELECT id, is_admin FROM users WHERE login=$1', [(payload as JwtPayload)?.login])
-          ).rows[0];
+      const payload = verify(token, String(process.env.ACCESS_TOKEN_SECRET));
 
-          if (!user || (!allowUser && !user.is_admin)) {
-            res.sendStatus(404);
-            return;
-          }
+      if (!payload || typeof payload !== 'object' || !payload.sub) {
+        // res.sendStatus(403);
+        res.sendStatus(404);
+        return;
+      }
+      const userQueryResult = await pool.query('SELECT id, is_admin FROM users WHERE login=$1', [payload.sub]);
+      const user = userQueryResult.rows[0];
 
-          req.body.auth = {
-            user_id: user.id,
-            is_admin: user.is_admin,
-          };
+      if (!user || (!allowUser && !user.is_admin)) {
+        res.sendStatus(404);
+        return;
+      }
 
-          const { rows, rowCount } = await pool.query('SELECT id FROM authors WHERE user_id=$1', [user.id]);
-          if (rowCount > 0) {
-            req.body.auth_author_id = rows[0].id;
-          }
-          next();
-        }
-      });
-    } catch {
+      req.body.auth = {
+        user_id: user.id,
+        is_admin: user.is_admin,
+      };
+
+      const authorQueryResult = await pool.query('SELECT id FROM authors WHERE user_id=$1', [user.id]);
+      if (authorQueryResult.rowCount > 0) {
+        req.body.auth_author_id = authorQueryResult.rows[0].id;
+      }
+
+      next();
+    } catch (err) {
+      if (err instanceof JsonWebTokenError) {
+        // res.sendStatus(403);
+        res.sendStatus(404);
+        return;
+      }
       res.sendStatus(500);
     }
   };

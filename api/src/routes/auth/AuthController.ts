@@ -1,9 +1,10 @@
 import { compare } from 'bcrypt';
 import { RequestHandler } from 'express';
-import { sign } from 'jsonwebtoken';
+import { decode, JsonWebTokenError, sign, verify, VerifyCallback } from 'jsonwebtoken';
 
 import pool from 'pool';
 import { issueAccessToken, issueRefreshToken, issueTokens } from './utils';
+import { connect, redisClient } from 'redisClient';
 
 export class AuthController {
   static login: RequestHandler = async (req, res) => {
@@ -26,6 +27,39 @@ export class AuthController {
         res.sendStatus(403);
       }
     } catch {
+      res.sendStatus(500);
+    }
+  };
+
+  static refresh: RequestHandler = async (req, res) => {
+    try {
+      const { refreshToken } = req.body;
+      const payload = await decode(refreshToken);
+
+      if (!payload || typeof payload !== 'object' || !payload.sub) {
+        // res.sendStatus(400);
+        res.sendStatus(404);
+        return;
+      }
+
+      await connect();
+      const secret = await redisClient.get(payload.sub);
+
+      if (!secret) {
+        // res.sendStatus(403)
+        res.sendStatus(404);
+        return;
+      }
+
+      verify(refreshToken, secret);
+
+      const tokens = await issueTokens(payload.sub);
+      res.send(tokens);
+    } catch (err) {
+      if (err instanceof JsonWebTokenError) {
+        // res.sendStatus(403)
+        res.sendStatus(404);
+      }
       res.sendStatus(500);
     }
   };
