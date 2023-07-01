@@ -1,20 +1,20 @@
 import { RequestHandler } from 'express';
 
-import pool from '../../pool';
+import db from 'db';
 
 export class AuthorController {
   static create: RequestHandler = async (req, res) => {
     try {
       const { user_id, description = '' } = req.body;
 
-      const existing = await pool.query('SELECT * FROM authors WHERE user_id=$1', [user_id]);
+      const existing = await db.query('SELECT * FROM authors WHERE user_id=$1', [user_id]);
 
       if (existing.rowCount > 0) {
         res.sendStatus(409);
         return;
       }
 
-      const created = await pool.query(
+      const created = await db.query(
         `INSERT INTO authors (user_id, description)
          VALUES ($1, $2)
          RETURNING *`,
@@ -28,7 +28,7 @@ export class AuthorController {
 
   static read: RequestHandler = async (req, res) => {
     try {
-      const authors = await pool.query('SELECT id, user_id, description FROM authors');
+      const authors = await db.query('SELECT id, user_id, description FROM authors');
       res.send(authors.rows);
     } catch {
       res.sendStatus(500);

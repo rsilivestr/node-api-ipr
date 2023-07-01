@@ -1,17 +1,17 @@
 import { RequestHandler } from 'express';
 
-import pool from 'pool';
+import db from 'db';
 
 export class CategoryController {
   static create: RequestHandler = async (req, res) => {
     try {
       const { name, parent_id = null } = req.body;
-      const existing = await pool.query('SELECT * FROM categories WHERE name=$1', [name]);
+      const existing = await db.query('SELECT * FROM categories WHERE name=$1', [name]);
       if (existing.rowCount > 0) {
         res.sendStatus(409);
         return;
       }
-      const created = await pool.query(
+      const created = await db.query(
         `INSERT INTO categories (name, parent_id)
          VALUES ($1, $2)
          RETURNING *`,
@@ -25,7 +25,7 @@ export class CategoryController {
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      const { rows } = await pool.query('SELECT * FROM categories ORDER BY id');
+      const { rows } = await db.query('SELECT * FROM categories ORDER BY id');
       res.send(rows);
     } catch {
       res.sendStatus(500);
@@ -34,7 +34,7 @@ export class CategoryController {
 
   static findOne: RequestHandler = async (req, res) => {
     try {
-      const { rows, rowCount } = await pool.query('SELECT * FROM categories WHERE id=$1', [req.params.id]);
+      const { rows, rowCount } = await db.query('SELECT * FROM categories WHERE id=$1', [req.params.id]);
       if (rowCount === 0) {
         res.sendStatus(404);
       } else {
@@ -52,7 +52,7 @@ export class CategoryController {
         return;
       }
 
-      const found = await pool.query('SELECT * FROM categories WHERE id=$1', [req.params.id]);
+      const found = await db.query('SELECT * FROM categories WHERE id=$1', [req.params.id]);
 
       if (found.rowCount === 0) {
         res.sendStatus(404);
@@ -62,7 +62,7 @@ export class CategoryController {
       const newName = req.body.name ?? found.rows[0].name;
       const newParentId = req.body.parent_id ?? found.rows[0].parent_id;
 
-      const { rowCount } = await pool.query(
+      const { rowCount } = await db.query(
         `UPDATE categories
          SET name=$2, parent_id=$3
          WHERE id=$1 RETURNING *`,
@@ -76,7 +76,7 @@ export class CategoryController {
 
   static delete: RequestHandler = async (req, res) => {
     try {
-      const { rowCount } = await pool.query('DELETE FROM categories WHERE id=$1', [req.params.id]);
+      const { rowCount } = await db.query('DELETE FROM categories WHERE id=$1', [req.params.id]);
       res.sendStatus(rowCount === 1 ? 204 : 404);
     } catch {
       res.sendStatus(500);

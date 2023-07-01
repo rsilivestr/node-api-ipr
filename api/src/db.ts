@@ -1,9 +1,9 @@
 import { Pool } from 'pg';
 
-const pool = new Pool();
-pool
+const db = new Pool();
+db
   .connect()
   .then(() => console.log('⚡️[server]: Connected to database'))
   .catch((err) => console.log(err.message));
 
-export default pool;
+export default db;

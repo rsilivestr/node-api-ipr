@@ -1,13 +1,13 @@
 import { RequestHandler } from 'express';
 
-import pool from 'pool';
+import db from 'db';
 
 export class PostController {
   static create: RequestHandler = async (req, res) => {
     try {
       const { title, body, author_id, tags, category_id } = req.body;
 
-      await pool.query('INSERT into posts (title, body, author_id, tags, category_id) VALUES ($1, $2, $3, $4, $5)', [
+      await db.query('INSERT into posts (title, body, author_id, tags, category_id) VALUES ($1, $2, $3, $4, $5)', [
         title,
         body,
         author_id,
@@ -87,7 +87,7 @@ export class PostController {
 
       const queryString = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-      const { rows } = await pool.query(
+      const { rows } = await db.query(
         `SELECT id, title, body, poster, images, created_at, updated_at, published_at,
           (
             SELECT json_build_object (
@@ -128,7 +128,7 @@ export class PostController {
   static findById: RequestHandler = async (req, res) => {
     try {
       const { id } = req.params;
-      const { rows, rowCount } = await pool.query('SELECT * FROM posts WHERE id=$1', [id]);
+      const { rows, rowCount } = await db.query('SELECT * FROM posts WHERE id=$1', [id]);
 
       if (rowCount === 0) {
         res.sendStatus(404);

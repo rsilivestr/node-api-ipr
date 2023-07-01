@@ -2,7 +2,7 @@ import { compare } from 'bcrypt';
 import { RequestHandler } from 'express';
 import { decode, JsonWebTokenError, sign, verify, VerifyCallback } from 'jsonwebtoken';
 
-import pool from 'pool';
+import db from 'db';
 import { issueAccessToken, issueRefreshToken, issueTokens } from './utils';
 import { connect, redisClient } from 'redisClient';
 
@@ -10,7 +10,7 @@ export class AuthController {
   static login: RequestHandler = async (req, res) => {
     try {
       const { login, password } = req.body;
-      const user = await pool.query('SELECT id, passwd_hash FROM users WHERE login=$1', [login]);
+      const user = await db.query('SELECT id, passwd_hash FROM users WHERE login=$1', [login]);
 
       if (user.rowCount === 0) {
         res.sendStatus(404);
