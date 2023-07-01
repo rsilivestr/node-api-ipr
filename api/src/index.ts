@@ -1,5 +1,5 @@
-import express, { json, Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
+import express, { json, Express, Request, Response } from 'express';
 
 import users from './routes/users';
 import authors from './routes/authors';

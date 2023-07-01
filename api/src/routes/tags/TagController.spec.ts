@@ -1,7 +1,15 @@
 import { beforeAll, describe, expect, test } from '@jest/globals';
 import request from 'supertest';
 
+import { getAuthHeaders } from '../../test-setup';
+
 describe('Tag controller', () => {
+  let authHeaders: Record<string, [string, string]> = {};
+
+  beforeAll(async () => {
+    authHeaders = await getAuthHeaders();
+  });
+
   describe('GET /tags', () => {
     test('Should return an array of tags', async () => {
       const response = await request(process.env.LOCALHOST).get('/tags');
@@ -38,7 +46,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .post('/tags')
         .send({ name: `Test ${Math.random()}` })
-        .set('Authorization', process.env.AUTH_USER!);
+        .set(...authHeaders.user);
       expect(response.statusCode).toBe(404);
     });
 
@@ -46,7 +54,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .post('/tags')
         .send({ name: `Test ${Math.random()}` })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('id');
     });
@@ -64,7 +72,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .patch('/tags/1')
         .send({ name: `Test ${Math.random()}` })
-        .set('Authorization', process.env.AUTH_USER!);
+        .set(...authHeaders.user);
       expect(response.statusCode).toBe(404);
     });
 
@@ -72,7 +80,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .patch('/tags/1')
         .send({ name: `Test ${Math.random()}` })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(response.statusCode).toBe(204);
     });
   });
@@ -84,7 +92,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .post('/tags')
         .send({ name: `Test ${Math.random()}` })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       testId = response.body.id;
     });
 
@@ -96,21 +104,21 @@ describe('Tag controller', () => {
     test('Should return 404 to non-admin users', async () => {
       const response = await request(process.env.LOCALHOST)
         .delete(`/tags/${testId}`)
-        .set('Authorization', process.env.AUTH_USER!);
+        .set(...authHeaders.user);
       expect(response.statusCode).toBe(404);
     });
 
     test('Should return 204 to admin users', async () => {
       const response = await request(process.env.LOCALHOST)
         .delete(`/tags/${testId}`)
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(response.statusCode).toBe(204);
     });
 
     test('Should return 404 to admin users if id does not exist', async () => {
       const response = await request(process.env.LOCALHOST)
         .delete('/tags/0')
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(response.statusCode).toBe(404);
     });
   });

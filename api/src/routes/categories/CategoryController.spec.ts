@@ -1,7 +1,15 @@
 import { beforeAll, describe, expect, test } from '@jest/globals';
 import request from 'supertest';
 
+import { getAuthHeaders } from '../../test-setup';
+
 describe('Tag controller', () => {
+  let authHeaders: Record<string, [string, string]> = {};
+
+  beforeAll(async () => {
+    authHeaders = await getAuthHeaders();
+  });
+
   describe('POST /categories', () => {
     test('Should respond with 404 to unathorized requests', async () => {
       const response = await request(process.env.LOCALHOST)
@@ -14,7 +22,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
         .send({ name: `Test ${Math.random()}` })
-        .set('Authorization', process.env.AUTH_USER!);
+        .set(...authHeaders.user);
       expect(response.statusCode).toBe(404);
     });
 
@@ -22,7 +30,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
         .send({ name: `Test ${Math.random()}` })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(response.statusCode).toBe(201);
     });
 
@@ -30,7 +38,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
         .send({ name: `Test ${Math.random()}`, parent_id: 1 })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(response.statusCode).toBe(201);
     });
 
@@ -39,12 +47,12 @@ describe('Tag controller', () => {
       await request(process.env.LOCALHOST)
         .post('/categories')
         .send({ name })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
 
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
         .send({ name })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
 
       expect(response.statusCode).toBe(409);
     });
@@ -81,7 +89,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .patch('/categories/2')
         .send({ name: 'New category name' })
-        .set('Authorization', process.env.AUTH_USER!);
+        .set(...authHeaders.user);
       expect(response.statusCode).toBe(404);
     });
 
@@ -89,7 +97,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .patch('/categories/2')
         .send({ name: 'New category name' })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(response.statusCode).toBe(204);
     });
 
@@ -100,11 +108,11 @@ describe('Tag controller', () => {
       await request(process.env.LOCALHOST)
         .patch('/categories/3')
         .send({ name: expectedName })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       await request(process.env.LOCALHOST)
         .patch('/categories/3')
         .send({ parent_id: expectedParent })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
 
       const response = await request(process.env.LOCALHOST).get('/categories/3');
 
@@ -116,7 +124,7 @@ describe('Tag controller', () => {
       const result = await request(process.env.LOCALHOST)
         .patch('/categories/3')
         .send({ parent_id: 3 })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(result.statusCode).toBe(400);
     });
 
@@ -124,7 +132,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .patch('/categories/3')
         .send({ parent_id: 0 })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(response.statusCode).toBe(500);
     });
   });
@@ -136,7 +144,7 @@ describe('Tag controller', () => {
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
         .send({ name: `Test ${Math.random()}` })
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       testId = response.body.id;
     });
 
@@ -148,21 +156,21 @@ describe('Tag controller', () => {
     test('Should respond with 404 to non-admin request', async () => {
       const response = await request(process.env.LOCALHOST)
         .delete(`/categories/${testId}`)
-        .set('Authorization', process.env.AUTH_USER!);
+        .set(...authHeaders.user);
       expect(response.statusCode).toBe(404);
     });
 
     test('Should respond with 204 admin request', async () => {
       const response = await request(process.env.LOCALHOST)
         .delete(`/categories/${testId}`)
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(response.statusCode).toBe(204);
     });
 
     test('Should respond with 404 when deleting nonexistent category', async () => {
       const response = await request(process.env.LOCALHOST)
         .delete('/categories/0')
-        .set('Authorization', process.env.AUTH_ADMIN!);
+        .set(...authHeaders.admin);
       expect(response.statusCode).toBe(404);
     });
   });

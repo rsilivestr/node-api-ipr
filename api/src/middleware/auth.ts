@@ -20,7 +20,7 @@ export const authMiddleware: (params?: Params) => RequestHandler =
       }
 
       const token = authHeader.split(' ')[1];
-      jwt.verify(token, String(process.env.JWT_SECRET), async (err, payload) => {
+      jwt.verify(token, String(process.env.ACCESS_TOKEN_SECRET), async (err, payload) => {
         if (err) {
           res.sendStatus(404);
         } else {
@@ -28,7 +28,7 @@ export const authMiddleware: (params?: Params) => RequestHandler =
             await pool.query('SELECT id, is_admin FROM users WHERE login=$1', [(payload as JwtPayload)?.login])
           ).rows[0];
 
-          if (!allowUser && !user.is_admin) {
+          if (!user || (!allowUser && !user.is_admin)) {
             res.sendStatus(404);
             return;
           }

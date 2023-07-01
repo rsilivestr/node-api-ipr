@@ -7,11 +7,7 @@ export class AuthorController {
     try {
       const { user_id, description = '' } = req.body;
 
-      console.debug(req.body, user_id, description);
-
       const existing = await pool.query('SELECT * FROM authors WHERE user_id=$1', [user_id]);
-
-      console.debug('EXISTING AUTHOR', existing.rowCount, existing.rows[0]);
 
       if (existing.rowCount > 0) {
         res.sendStatus(409);

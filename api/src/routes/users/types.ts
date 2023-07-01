@@ -11,3 +11,8 @@ export type UserData = {
 export type UserCreateData = Pick<UserData, 'login' | 'name' | 'surname' | 'avatar'> & {
   password: string;
 };
+
+export type UserCreateResponse = {
+  accessToken: string;
+  refreshToken: string;
+};

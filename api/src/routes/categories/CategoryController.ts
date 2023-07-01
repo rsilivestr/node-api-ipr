@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 
-import pool from '../../pool';
+import pool from 'pool';
 
 export class CategoryController {
   static create: RequestHandler = async (req, res) => {

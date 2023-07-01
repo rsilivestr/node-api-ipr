@@ -2,7 +2,8 @@ import { hash } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 
 import pool from '../../pool';
-import { UserCreateData, UserData } from './types';
+import { UserCreateData, UserCreateResponse, UserData } from './types';
+import { issueTokens } from 'routes/auth/utils';
 
 const SALT_ROUNDS = 10;
 
@@ -17,7 +18,13 @@ export class UserModel {
     return rows[0];
   }
 
-  static async create({ login, password, name, surname, avatar }: UserCreateData): Promise<string | undefined> {
+  static async create({
+    login,
+    password,
+    name,
+    surname,
+    avatar,
+  }: UserCreateData): Promise<UserCreateResponse | undefined> {
     const existingUsers = await pool.query('SELECT login FROM users WHERE login=$1', [login]);
 
     if (existingUsers.rowCount > 0) return;
@@ -30,12 +37,13 @@ export class UserModel {
       surname,
       avatar,
     ]);
-    const token = sign({ login }, String(process.env.JWT_SECRET));
+    const tokens = await issueTokens(login);
 
-    return token;
+    return tokens;
   }
 
   static async delete(id: string): Promise<boolean> {
+    console.debug(id);
     const { rowCount } = await pool.query('DELETE FROM users WHERE id=$1 RETURNING *', [id]);
 
     return rowCount === 1;

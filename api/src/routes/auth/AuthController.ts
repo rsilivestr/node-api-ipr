@@ -2,7 +2,8 @@ import { compare } from 'bcrypt';
 import { RequestHandler } from 'express';
 import { sign } from 'jsonwebtoken';
 
-import pool from '../../pool';
+import pool from 'pool';
+import { issueAccessToken, issueRefreshToken, issueTokens } from './utils';
 
 export class AuthController {
   static login: RequestHandler = async (req, res) => {
@@ -19,8 +20,8 @@ export class AuthController {
       const match = await compare(password, passwordHash);
 
       if (match) {
-        const token = sign({ login }, String(process.env.JWT_SECRET));
-        res.status(200).send({ token });
+        const tokens = await issueTokens(login);
+        res.status(200).send(tokens);
       } else {
         res.sendStatus(403);
       }

@@ -5,9 +5,9 @@ import { UserModel } from './UserModel';
 export class UserController {
   static create: RequestHandler = async (req, res) => {
     try {
-      const token = await UserModel.create(req.body);
-      if (token) {
-        res.status(201).send({ token });
+      const tokens = await UserModel.create(req.body);
+      if (tokens) {
+        res.status(201).send(tokens);
       } else {
         res.sendStatus(409);
       }
