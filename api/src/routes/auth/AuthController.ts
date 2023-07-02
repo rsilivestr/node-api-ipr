@@ -1,10 +1,11 @@
 import { compare } from 'bcrypt';
 import { RequestHandler } from 'express';
-import { decode, JsonWebTokenError, sign, verify, VerifyCallback } from 'jsonwebtoken';
+import { decode, JsonWebTokenError, verify } from 'jsonwebtoken';
 
-import db from 'db';
-import { issueAccessToken, issueRefreshToken, issueTokens } from './utils';
-import { connect, redisClient } from 'redisClient';
+import db from '@/db';
+import { connect, redisClient } from '@/redisClient';
+
+import { issueTokens } from './utils';
 
 export class AuthController {
   static login: RequestHandler = async (req, res) => {

@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 
-import db from 'db';
+import db from '@/db';
 
 export class AuthorController {
   static create: RequestHandler = async (req, res) => {

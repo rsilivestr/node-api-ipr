@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
 import express, { json, Express, Request, Response } from 'express';
 
-import users from './routes/users';
-import authors from './routes/authors';
 import auth from './routes/auth';
+import authors from './routes/authors';
+import categories from './routes/categories';
 import posts from './routes/posts';
 import tags from './routes/tags';
-import categories from './routes/categories';
+import users from './routes/users';
 
 dotenv.config();
 

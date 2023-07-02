@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 
 const db = new Pool();
+
 db
   .connect()
   .then(() => console.log('⚡️[server]: Connected to database'))

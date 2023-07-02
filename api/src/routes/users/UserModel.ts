@@ -1,7 +1,7 @@
 import { hash } from 'bcrypt';
 
-import db from 'db';
-import { issueTokens } from 'routes/auth/utils';
+import db from '@/db';
+import { issueTokens } from '@/routes/auth/utils';
 
 import { UserCreateData, UserCreateResponse, UserData } from './types';
 
@@ -39,6 +39,7 @@ export class UserModel {
     ]);
     const tokens = await issueTokens(login);
 
+    // eslint-disable-next-line consistent-return
     return tokens;
   }
 

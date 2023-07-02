@@ -1,8 +1,8 @@
 import { beforeAll, beforeEach, describe, expect, test } from '@jest/globals';
 import request from 'supertest';
 
-import { getAuthHeaders } from '../../test-setup';
 import { UserCreateData } from './types';
+import { getAuthHeaders } from '../../test-setup';
 
 const generateUserData: () => UserCreateData = () => ({
   login: `ivan_${(Math.random() * 1000).toFixed(0)}`,

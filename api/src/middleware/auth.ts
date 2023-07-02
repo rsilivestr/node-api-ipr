@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
-import jwt, { JsonWebTokenError, JwtPayload, verify } from 'jsonwebtoken';
+import { JsonWebTokenError, verify } from 'jsonwebtoken';
 
-import db from '../db';
+import db from '@/db';
 
 type Params = {
   allowAdmin?: boolean;

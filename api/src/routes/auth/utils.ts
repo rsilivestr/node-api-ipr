@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { sign } from 'jsonwebtoken';
 
-import { redisClient, connect } from 'redisClient';
+import { redisClient, connect } from '@/redisClient';
 
 export const issueAccessToken = async (sub: string) =>
   sign({ sub }, String(process.env.ACCESS_TOKEN_SECRET), { expiresIn: '15m' });
