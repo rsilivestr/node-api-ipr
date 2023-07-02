@@ -83,14 +83,14 @@ CREATE TABLE posts (
   published_at TIMESTAMP
 );
 
-INSERT INTO posts (title, body, poster, images, tags, category_id, author_id, is_published)
+INSERT INTO posts (title, body, poster, images, tags, category_id, author_id, is_published, created_at)
 VALUES 
-  ('Post about ducks', 'Ducks are awesome', 'duck.webp', '{}', '{ 1, 2 }', '1', '1', 'true'),
-  ('How to make a website', 'Go to MetaLamp', 'metalamp.webp', '{}', '{ 1, 3 }', '2', '2', 'true'),
-  ('On memes', 'Memes are a waste of time', 'meme.webp', '{}', '{ 3 }', '4', '1', 'true'),
-  ('About rabbits', 'Rabbits are awesome', 'rabbit.webp', '{}', '{ 2, 3, 4 }', '3', '1', 'true'),
-  ('How to bake a cake', 'Ask your mom', 'mom.webp', '{}', '{ 1, 4 }', '2', '2', 'true'),
-  ('Lingva latina', 'Lingua latina non lorem ipsum est', 'latin.webp', '{}', '{ 3, 4 }', '1', '2', 'false');
+  ('Post about ducks', 'Ducks are awesome', 'duck.webp', '{}', '{ 1, 2 }', '1', '1', 'true', '2020-05-12'),
+  ('How to make a website', 'Go to MetaLamp', 'metalamp.webp', '{}', '{ 1, 3 }', '2', '2', 'true', '2020-10-15'),
+  ('On memes', 'Memes are a waste of time', 'meme.webp', '{}', '{ 3 }', '4', '1', 'true', '2021-04-05'),
+  ('About rabbits', 'Rabbits are awesome', 'rabbit.webp', '{}', '{ 2, 3, 4 }', '3', '1', 'true', '2021-07-08'),
+  ('How to bake a cake', 'Ask your mom', 'mom.webp', '{}', '{ 1, 4 }', '2', '2', 'true', '2022-01-01'),
+  ('Lingva latina', 'Lingua latina non lorem ipsum est', 'latin.webp', '{}', '{ 3, 4 }', '1', '2', 'false', '2022-12-25');
 
 CREATE TABLE comments (
   id SERIAL PRIMARY KEY,

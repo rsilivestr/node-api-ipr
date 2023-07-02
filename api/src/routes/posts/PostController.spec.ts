@@ -34,7 +34,7 @@ describe('Post controller', () => {
   });
 
   describe('GET /posts', () => {
-    test('Should get a list of posts', async () => {
+    test('Should respond with a list of posts', async () => {
       const response = await request(process.env.LOCALHOST).get('/posts');
       expect(response.body).toBeInstanceOf(Array);
       expect(response.body[0]).toHaveProperty('id');
@@ -47,7 +47,7 @@ describe('Post controller', () => {
       expect(response.body[0]).toHaveProperty('tags');
     });
 
-    test('Posts should be paginated', async () => {
+    test('Should be paginated', async () => {
       const page1 = await request(process.env.LOCALHOST).get('/posts?limit=3');
       const page2 = await request(process.env.LOCALHOST).get('/posts?limit=3&offset=3');
       expect(page1.body.length).toBe(3);
@@ -55,7 +55,7 @@ describe('Post controller', () => {
       expect(page2.body[0].id).toBeGreaterThan(page1.body[2].id);
     });
 
-    test('Posts should support filtering by author', async () => {
+    test('Should support filtering by author', async () => {
       const response1 = await request(process.env.LOCALHOST).get('/posts?author=roman');
       for (const post of response1.body) {
         expect(post.author.name).toBe('Roman');
@@ -66,35 +66,62 @@ describe('Post controller', () => {
       }
     });
 
-    test('Posts should support filtering by category', async () => {
+    test('Should support filtering by category', async () => {
       const response = await request(process.env.LOCALHOST).get('/posts?category=1');
       for (const post of response.body) {
         expect(post.categories).toContain('Category 1');
       }
     });
 
-    test('Posts should support filtering by content', async () => {
+    test('Should support filtering by content', async () => {
       const response = await request(process.env.LOCALHOST).get('/posts?content=ipsum');
       for (const post of response.body) {
         expect(post.body).toMatch(/ipsum/gi);
       }
     });
 
-    test('Posts should support filtering by a tag', async () => {
+    test('Should support filtering by date', async () => {
+      const testDate = '2020-05-12';
+      const response = await request(process.env.LOCALHOST).get(`/posts?created_at=${testDate}`);
+      expect(response.body).toHaveLength(1);
+      expect(new Date(response.body[0].created_at).getTime()).toBe(new Date(testDate).getTime());
+    });
+
+    test('Should support filtering by date greater than provided', async () => {
+      const testDate = '2021-01-01';
+      const testTimestamp = new Date(testDate).getTime();
+      const response = await request(process.env.LOCALHOST).get(`/posts?created_at__gt=${testDate}`);
+      expect(response.body.length).toBeGreaterThan(1);
+      for (const post of response.body) {
+        expect(new Date(post.created_at).getTime()).toBeGreaterThan(testTimestamp);
+      }
+    });
+
+    test('Should support filtering by date less than provided', async () => {
+      const testDate = '2021-01-01';
+      const testTimestamp = new Date(testDate).getTime();
+      const response = await request(process.env.LOCALHOST).get(`/posts?created_at__lt=${testDate}`);
+      expect(response.body.length).toBeGreaterThan(1);
+      for (const post of response.body) {
+        expect(new Date(post.created_at).getTime()).toBeLessThan(testTimestamp);
+      }
+    });
+
+    test('Should support filtering by a tag', async () => {
       const response = await request(process.env.LOCALHOST).get('/posts?tag=2');
       for (const post of response.body) {
         expect(post.tags).toContain('Tag 2');
       }
     });
 
-    test('Posts should support filtering by any tag in a list', async () => {
+    test('Should support filtering by any tag in a list', async () => {
       const response = await request(process.env.LOCALHOST).get('/posts?tags__in=[3,4,5]');
       for (const post of response.body) {
         expect(post.tags.some((tag: string) => ['Tag 3', 'Tag 4', 'Tag 5'].includes(tag))).toBeTruthy();
       }
     });
 
-    test('Posts should support filtering by all the tags in a list', async () => {
+    test('Should support filtering by all the tags in a list', async () => {
       const response = await request(process.env.LOCALHOST).get('/posts?tags__all=[3,4]');
       for (const post of response.body) {
         expect(post.tags).toContain('Tag 3');
@@ -102,7 +129,7 @@ describe('Post controller', () => {
       }
     });
 
-    test('Posts should support filtering by title', async () => {
+    test('Should support filtering by title', async () => {
       const response = await request(process.env.LOCALHOST).get('/posts?title=about');
       for (const post of response.body) {
         expect(post.title).toMatch(/about/gi);

@@ -42,7 +42,7 @@ export class PostController {
       } = req.query;
 
       const conditions: string[] = [];
-      const conditionValues: any[] = [];
+      const conditionValues: string[] = [];
 
       if (author) {
         conditionValues.push(`%${author}%`);
@@ -58,7 +58,7 @@ export class PostController {
       }
 
       if (category) {
-        conditionValues.push(category);
+        conditionValues.push(String(category));
         conditions.push(`category_id = $${conditionValues.length}`);
       }
 
@@ -67,9 +67,19 @@ export class PostController {
         conditions.push(`body ILIKE $${conditionValues.length}`);
       }
 
+      if (created_at) {
+        conditionValues.push(String(created_at));
+        conditions.push(`created_at = $${conditionValues.length}::date`);
+      } else if (created_at__gt) {
+        conditionValues.push(String(created_at__gt));
+        conditions.push(`created_at > $${conditionValues.length}::date`);
+      } else if (created_at__lt) {
+        conditionValues.push(String(created_at__lt));
+        conditions.push(`created_at < $${conditionValues.length}::date`);
+      }
+
       if (tag) {
-        conditionValues.push(tag);
-        console.debug(tag);
+        conditionValues.push(String(tag));
         conditions.push(`$${conditionValues.length} = ANY(tags)`);
       }
 
@@ -88,21 +98,21 @@ export class PostController {
         conditions.push(`title ILIKE $${conditionValues.length}`);
       }
 
-      let queryString = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+      let queryString = ' WHERE is_published';
 
-      conditionValues.push(order);
+      queryString += conditions.length > 0 ? ` AND ${conditions.join(' AND ')}` : '';
+
+      conditionValues.push(String(order));
       queryString += ` ORDER BY $${conditionValues.length}`;
 
-      conditionValues.push(limit);
+      conditionValues.push(String(limit));
       queryString += ` LIMIT $${conditionValues.length}`;
 
-      conditionValues.push(offset);
+      conditionValues.push(String(offset));
       queryString += ` OFFSET $${conditionValues.length}`;
 
-      console.debug({ queryString, conditionValues });
-
       const { rows } = await db.query(
-        `SELECT id, title, body, poster, images, created_at, updated_at, published_at,
+        `SELECT id, title, body, poster, images, is_published, created_at, updated_at, published_at,
           (
             SELECT json_build_object (
               'name', users.name,
