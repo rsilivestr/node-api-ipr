@@ -32,9 +32,13 @@ export class TagController {
 
   static findMany: RequestHandler = async (req, res) => {
     try {
+      const { limit = '5', offset = '0' } = req.query;
       const { rows: tags } = await db.query(
         `SELECT * FROM tags
-         ORDER BY id`
+         ORDER BY id
+         LIMIT $1
+         OFFSET $2`,
+        [limit === '0' ? null : limit, offset]
       );
       res.send(tags);
     } catch {

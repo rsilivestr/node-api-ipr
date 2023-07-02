@@ -26,9 +26,16 @@ export class AuthorController {
     }
   };
 
-  static read: RequestHandler = async (req, res) => {
+  static findMany: RequestHandler = async (req, res) => {
     try {
-      const authors = await db.query('SELECT id, user_id, description FROM authors');
+      const { limit = '5', offset = '0' } = req.query;
+      const authors = await db.query(
+        `SELECT id, user_id, description
+         FROM authors
+         LIMIT $1
+         OFFSET $2`,
+        [limit === '0' ? null : limit, offset]
+      );
       res.send(authors.rows);
     } catch {
       res.sendStatus(500);

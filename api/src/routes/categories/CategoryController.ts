@@ -6,7 +6,11 @@ export class CategoryController {
   static create: RequestHandler = async (req, res) => {
     try {
       const { name, parent_id = null } = req.body;
-      const existing = await db.query('SELECT * FROM categories WHERE name=$1', [name]);
+      const existing = await db.query(
+        `SELECT * FROM categories
+         WHERE name=$1`,
+        [name]
+      );
       if (existing.rowCount > 0) {
         res.sendStatus(409);
         return;
@@ -25,7 +29,14 @@ export class CategoryController {
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      const { rows } = await db.query('SELECT * FROM categories ORDER BY id');
+      const { limit = '5', offset = '0' } = req.query;
+      const { rows } = await db.query(
+        `SELECT * FROM categories
+         ORDER BY id
+         LIMIT $1
+         OFFSET $2`,
+        [limit === '0' ? null : limit, offset]
+      );
       res.send(rows);
     } catch {
       res.sendStatus(500);
@@ -34,7 +45,11 @@ export class CategoryController {
 
   static findOne: RequestHandler = async (req, res) => {
     try {
-      const { rows, rowCount } = await db.query('SELECT * FROM categories WHERE id=$1', [req.params.id]);
+      const { rows, rowCount } = await db.query(
+        `SELECT * FROM categories
+         WHERE id=$1`,
+        [req.params.id]
+      );
       if (rowCount === 0) {
         res.sendStatus(404);
       } else {
@@ -52,7 +67,11 @@ export class CategoryController {
         return;
       }
 
-      const found = await db.query('SELECT * FROM categories WHERE id=$1', [req.params.id]);
+      const found = await db.query(
+        `SELECT * FROM categories
+         WHERE id=$1`,
+        [req.params.id]
+      );
 
       if (found.rowCount === 0) {
         res.sendStatus(404);
@@ -76,7 +95,11 @@ export class CategoryController {
 
   static delete: RequestHandler = async (req, res) => {
     try {
-      const { rowCount } = await db.query('DELETE FROM categories WHERE id=$1', [req.params.id]);
+      const { rowCount } = await db.query(
+        `DELETE FROM categories
+         WHERE id=$1`,
+        [req.params.id]
+      );
       res.sendStatus(rowCount === 1 ? 204 : 404);
     } catch {
       res.sendStatus(500);
