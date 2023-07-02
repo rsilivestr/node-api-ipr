@@ -20,10 +20,10 @@ export class TagController {
          RETURNING id`,
         [req.body.name]
       );
-      if (created.rowCount === 1) {
-        res.status(201).send({ id: created.rows[0].id });
+      if (created.rowCount > 0) {
+        res.status(201).send(created.rows[0]);
       } else {
-        res.sendStatus(500);
+        res.sendStatus(400);
       }
     } catch {
       res.sendStatus(500);

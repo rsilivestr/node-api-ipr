@@ -5,17 +5,18 @@ import db from '@/db';
 export class PostController {
   static create: RequestHandler = async (req, res) => {
     try {
-      const { title, body, author_id, tags, category_id } = req.body;
-
-      await db.query('INSERT into posts (title, body, author_id, tags, category_id) VALUES ($1, $2, $3, $4, $5)', [
-        title,
-        body,
-        author_id,
-        tags,
-        category_id,
-      ]);
-
-      res.sendStatus(201);
+      const { auth, body, category_id, tags, title } = req.body;
+      const insertQueryResult = await db.query(
+        `INSERT into posts (title, body, author_id, tags, category_id)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING *`,
+        [title, body, auth.author_id, tags, category_id]
+      );
+      if (insertQueryResult.rowCount > 0) {
+        res.status(201).send(insertQueryResult.rows[0]);
+      } else {
+        res.sendStatus(400);
+      }
     } catch {
       res.sendStatus(500);
     }
@@ -39,6 +40,9 @@ export class PostController {
         tags__in,
         title,
       } = req.query;
+
+      console.debug(req.query);
+
       const conditions: string[] = [];
       const conditionValues: any[] = [];
 
@@ -125,10 +129,14 @@ export class PostController {
     }
   };
 
-  static findById: RequestHandler = async (req, res) => {
+  static findOne: RequestHandler = async (req, res) => {
     try {
       const { id } = req.params;
-      const { rows, rowCount } = await db.query('SELECT * FROM posts WHERE id=$1', [id]);
+      const { rows, rowCount } = await db.query(
+        `SELECT * FROM posts
+         WHERE id=$1`,
+        [id]
+      );
 
       if (rowCount === 0) {
         res.sendStatus(404);

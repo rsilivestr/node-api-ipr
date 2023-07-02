@@ -42,7 +42,7 @@ export const authMiddleware: (params?: Params) => RequestHandler =
 
       const authorQueryResult = await db.query('SELECT id FROM authors WHERE user_id=$1', [user.id]);
       if (authorQueryResult.rowCount > 0) {
-        req.body.auth_author_id = authorQueryResult.rows[0].id;
+        req.body.auth.author_id = authorQueryResult.rows[0].id;
       }
 
       next();

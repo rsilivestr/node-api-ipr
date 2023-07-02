@@ -15,13 +15,17 @@ export class CategoryController {
         res.sendStatus(409);
         return;
       }
-      const created = await db.query(
+      const insertQueryResult = await db.query(
         `INSERT INTO categories (name, parent_id)
          VALUES ($1, $2)
          RETURNING *`,
         [name, parent_id]
       );
-      res.status(201).send({ id: created.rows[0].id });
+      if (insertQueryResult.rowCount > 0) {
+        res.status(201).send(insertQueryResult.rows[0]);
+      } else {
+        res.sendStatus(400);
+      }
     } catch {
       res.sendStatus(500);
     }
