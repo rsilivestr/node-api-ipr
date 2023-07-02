@@ -64,14 +64,14 @@ describe('Tag controller', () => {
     test('Should return 404 to unauthorized requests', async () => {
       const response = await request(process.env.LOCALHOST)
         .patch('/tags/1')
-        .send({ name: `Test ${Math.random()}` });
+        .send({ name: 'Tag One' });
       expect(response.statusCode).toBe(404);
     });
 
     test('Should return 404 to non-admin users', async () => {
       const response = await request(process.env.LOCALHOST)
         .patch('/tags/1')
-        .send({ name: `Test ${Math.random()}` })
+        .send({ name: 'Tag One' })
         .set(...authHeaders.user);
       expect(response.statusCode).toBe(404);
     });
@@ -79,7 +79,7 @@ describe('Tag controller', () => {
     test('Should return 204 to admin users', async () => {
       const response = await request(process.env.LOCALHOST)
         .patch('/tags/1')
-        .send({ name: `Test ${Math.random()}` })
+        .send({ name: 'Tag One' })
         .set(...authHeaders.admin);
       expect(response.statusCode).toBe(204);
     });

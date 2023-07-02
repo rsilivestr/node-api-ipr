@@ -22,6 +22,18 @@ VALUES (
   'Roman',
   'Romanov',
   'false'
+), (
+  'vasya',
+  '$2b$10$7d4WKblBU2ZoDUSSR.GEdevf4VSYpRXy0wkzXPeWtFjCUk8amYbpG',
+  'Vasily',
+  'Vasilev',
+  'false'
+), (
+  'john_doe',
+  '$2b$10$7d4WKblBU2ZoDUSSR.GEdevf4VSYpRXy0wkzXPeWtFjCUk8amYbpG',
+  'John',
+  'Doe',
+  'false'
 );
 
 CREATE TABLE authors (
@@ -31,7 +43,7 @@ CREATE TABLE authors (
 );
 
 INSERT INTO authors (user_id, description) 
-VALUES (2, 'Author description');
+VALUES (2, 'Author description'), (4, 'John description');
 
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
@@ -45,6 +57,7 @@ VALUES
   ('Category 2', 1),
   ('Category 2.1', 2),
   ('Category 2.2', 2),
+  ('Category 2.3', 2),
   ('Category 3', NULL);
 
 CREATE TABLE tags (
@@ -53,7 +66,7 @@ CREATE TABLE tags (
 );
 
 INSERT INTO tags (name) 
-VALUES ('Tag 1'), ('Tag 2'), ('Tag 3'), ('Tag 4');
+VALUES ('Tag 1'), ('Tag 2'), ('Tag 3'), ('Tag 4'), ('Tag 5'), ('Tag 6'), ('Tag 7');
 
 CREATE TABLE posts (
   id SERIAL PRIMARY KEY,
@@ -64,11 +77,20 @@ CREATE TABLE posts (
   tags INT[] DEFAULT '{}',
   author_id INT REFERENCES authors(id) NOT NULL,
   category_id INT REFERENCES categories(id),
-  is_published BOOLEAN,
+  is_published BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP,
   published_at TIMESTAMP
 );
+
+INSERT INTO posts (title, body, poster, images, tags, category_id, author_id, is_published)
+VALUES 
+  ('Post about ducks', 'Ducks are awesome', 'duck.webp', '{}', '{ 1, 2 }', '1', '1', 'true'),
+  ('How to make a website', 'Go to MetaLamp', 'metalamp.webp', '{}', '{ 1, 3 }', '2', '2', 'true'),
+  ('On memes', 'Memes are a waste of time', 'meme.webp', '{}', '{ 3 }', '4', '1', 'true'),
+  ('About rabbits', 'Rabbits are awesome', 'rabbit.webp', '{}', '{ 2, 3, 4 }', '3', '1', 'true'),
+  ('How to bake a cake', 'Ask your mom', 'mom.webp', '{}', '{ 1, 4 }', '2', '2', 'true'),
+  ('Lingva latina', 'Lingua latina non lorem ipsum est', 'latin.webp', '{}', '{ 3, 4 }', '1', '2', 'false');
 
 CREATE TABLE comments (
   id SERIAL PRIMARY KEY,

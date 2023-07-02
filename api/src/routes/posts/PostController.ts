@@ -31,17 +31,15 @@ export class PostController {
         created_at,
         created_at__gt,
         created_at__lt,
-        limit,
-        offset,
-        order,
+        limit = '5',
+        offset = '0',
+        order = 'id',
         search,
         tag,
         tags__all,
         tags__in,
         title,
       } = req.query;
-
-      console.debug(req.query);
 
       const conditions: string[] = [];
       const conditionValues: any[] = [];
@@ -53,8 +51,8 @@ export class PostController {
             SELECT authors.id FROM users
             JOIN authors ON users.id = authors.user_id
             WHERE 
-              CONCAT(LOWER(users.name), ' ', LOWER(users.surname)) 
-              LIKE LOWER($${conditionValues.length})
+              CONCAT(users.name, ' ', users.surname) 
+              ILIKE $${conditionValues.length}
           )`
         );
       }
@@ -66,11 +64,12 @@ export class PostController {
 
       if (content) {
         conditionValues.push(`%${content}%`);
-        conditions.push(`LOWER(body) LIKE LOWER($${conditionValues.length})`);
+        conditions.push(`body ILIKE $${conditionValues.length}`);
       }
 
       if (tag) {
-        conditionValues.push(`${tag}`);
+        conditionValues.push(tag);
+        console.debug(tag);
         conditions.push(`$${conditionValues.length} = ANY(tags)`);
       }
 
@@ -86,10 +85,21 @@ export class PostController {
 
       if (title) {
         conditionValues.push(`%${title}%`);
-        conditions.push(`LOWER(title) LIKE LOWER($${conditionValues.length})`);
+        conditions.push(`title ILIKE $${conditionValues.length}`);
       }
 
-      const queryString = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+      let queryString = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+      conditionValues.push(order);
+      queryString += ` ORDER BY $${conditionValues.length}`;
+
+      conditionValues.push(limit);
+      queryString += ` LIMIT $${conditionValues.length}`;
+
+      conditionValues.push(offset);
+      queryString += ` OFFSET $${conditionValues.length}`;
+
+      console.debug({ queryString, conditionValues });
 
       const { rows } = await db.query(
         `SELECT id, title, body, poster, images, created_at, updated_at, published_at,
