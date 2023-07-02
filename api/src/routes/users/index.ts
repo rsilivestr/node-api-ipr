@@ -8,7 +8,7 @@ const router = Router();
 
 router.post('/', UserController.create);
 
-router.get('/me', authMiddleware({ allowUser: true }), UserController.getById);
+router.get('/me', authMiddleware({ allowUser: true }), UserController.findOne);
 
 router.delete('/:id', authMiddleware(), UserController.delete);
 

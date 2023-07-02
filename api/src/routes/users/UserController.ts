@@ -4,8 +4,6 @@ import { RequestHandler } from 'express';
 import db from '@/db';
 import { issueTokens } from '@/routes/auth/utils';
 
-import { UserModel } from './UserModel';
-
 const SALT_ROUNDS = 10;
 
 export class UserController {
@@ -35,19 +33,23 @@ export class UserController {
     }
   };
 
-  static getById: RequestHandler = async (req, res) => {
+  static findOne: RequestHandler = async (req, res) => {
     try {
       const { user_id } = req.body.auth;
       if (!user_id) {
         res.sendStatus(400);
         return;
       }
-
-      const user = await UserModel.findOne(user_id);
-      if (!user) {
+      const { rows, rowCount } = await db.query(
+        `SELECT id, login, name, surname, avatar, is_admin, created_at
+        FROM users
+        WHERE id=$1`,
+        [user_id]
+      );
+      if (rowCount === 0) {
         res.sendStatus(404);
       } else {
-        res.send(user);
+        res.send(rows[0]);
       }
     } catch {
       res.sendStatus(500);
@@ -56,8 +58,8 @@ export class UserController {
 
   static delete: RequestHandler = async (req, res) => {
     try {
-      const success = await UserModel.delete(req.params.id);
-      res.sendStatus(success ? 204 : 404);
+      const { rowCount } = await db.query('DELETE FROM users WHERE id=$1 RETURNING *', [req.params.id]);
+      res.sendStatus(rowCount === 1 ? 204 : 404);
     } catch {
       res.sendStatus(500);
     }
