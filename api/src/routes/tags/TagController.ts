@@ -1,37 +1,58 @@
 import { RequestHandler } from 'express';
 
-import { TagModel } from './TagModel';
+import db from '@/db';
 
 export class TagController {
   static create: RequestHandler = async (req, res) => {
     try {
-      const id = await TagModel.create(req.body.name);
-      if (id) {
-        res.status(201).send({ id });
-      } else {
+      const existing = await db.query(
+        `SELECT * FROM tags
+         WHERE name=$1`,
+        [req.body.name]
+      );
+      if (existing.rowCount > 0) {
         res.sendStatus(409);
+        return;
+      }
+      const created = await db.query(
+        `INSERT INTO tags (name)
+         VALUES ($1)
+         RETURNING id`,
+        [req.body.name]
+      );
+      if (created.rowCount === 1) {
+        res.status(201).send({ id: created.rows[0].id });
+      } else {
+        res.sendStatus(500);
       }
     } catch {
       res.sendStatus(500);
     }
   };
 
-  static getAll: RequestHandler = async (req, res) => {
+  static findMany: RequestHandler = async (req, res) => {
     try {
-      const tags = await TagModel.findMany();
+      const { rows: tags } = await db.query(
+        `SELECT * FROM tags
+         ORDER BY id`
+      );
       res.send(tags);
     } catch {
       res.sendStatus(500);
     }
   };
 
-  static getById: RequestHandler = async (req, res) => {
+  static findOne: RequestHandler = async (req, res) => {
     try {
-      const tag = await TagModel.findOne(req.params.id);
-      if (tag) {
-        res.send(tag);
-      } else {
+      const { rows, rowCount } = await db.query(
+        `SELECT * FROM tags
+         WHERE id=$1`,
+        [req.params.id]
+      );
+      if (rowCount === 0) {
         res.sendStatus(404);
+      } else {
+        res.send(rows[0]);
       }
     } catch {
       res.sendStatus(500);
@@ -40,8 +61,14 @@ export class TagController {
 
   static update: RequestHandler = async (req, res) => {
     try {
-      const success = await TagModel.update(req.params.id, req.body.name);
-      res.sendStatus(success ? 204 : 404);
+      const { rowCount } = await db.query(
+        `UPDATE tags
+         SET name=$2
+         WHERE id=$1
+         RETURNING *`,
+        [req.params.id, req.body.name]
+      );
+      res.sendStatus(rowCount === 1 ? 204 : 404);
     } catch {
       res.sendStatus(500);
     }
@@ -49,10 +76,14 @@ export class TagController {
 
   static delete: RequestHandler = async (req, res) => {
     try {
-      const success = await TagModel.delete(req.params.id);
-      res.sendStatus(success ? 204 : 404);
+      const { rowCount } = await db.query(
+        `DELETE FROM tags
+         WHERE id=$1`,
+        [req.params.id]
+      );
+      res.sendStatus(rowCount === 1 ? 204 : 404);
     } catch {
       res.sendStatus(500);
     }
-  }
+  };
 }

@@ -8,9 +8,9 @@ const router = Router();
 
 router.post('/', authMiddleware(), TagController.create);
 
-router.get('/', TagController.getAll);
+router.get('/', TagController.findMany);
 
-router.get('/:id', TagController.getById);
+router.get('/:id', TagController.findOne);
 
 router.patch('/:id', authMiddleware(), TagController.update);
 
