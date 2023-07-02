@@ -1,16 +1,35 @@
+import { hash } from 'bcrypt';
 import { RequestHandler } from 'express';
 
+import db from '@/db';
+import { issueTokens } from '@/routes/auth/utils';
+
 import { UserModel } from './UserModel';
+
+const SALT_ROUNDS = 10;
 
 export class UserController {
   static create: RequestHandler = async (req, res) => {
     try {
-      const tokens = await UserModel.create(req.body);
-      if (tokens) {
-        res.status(201).send(tokens);
-      } else {
+      const { login, password, name, surname, avatar } = req.body;
+      const existingUsers = await db.query('SELECT login FROM users WHERE login=$1', [login]);
+
+      if (existingUsers.rowCount > 0) {
         res.sendStatus(409);
+        return;
       }
+
+      const passwordHash = await hash(password, SALT_ROUNDS);
+      await db.query('INSERT INTO users (login, passwd_hash, name, surname, avatar) VALUES ($1, $2, $3, $4, $5)', [
+        login,
+        passwordHash,
+        name,
+        surname,
+        avatar,
+      ]);
+      const tokens = await issueTokens(login);
+
+      res.status(201).send(tokens);
     } catch {
       res.sendStatus(500);
     }
