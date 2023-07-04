@@ -15,7 +15,10 @@
     "no-restricted-syntax": "off",
     "import/extensions": ["warn", { "ts": "never" }],
     "import/no-unresolved": "error",
-    "import/no-extraneous-dependencies": ["warn", { "devDependencies": ["**/*.spec.ts", "test-setup.ts"] }],
+    "import/no-extraneous-dependencies": [
+      "warn",
+      { "devDependencies": ["**/*.spec.ts", "test-setup.ts"] }
+    ],
     "import/order": [
       "warn",
       {
