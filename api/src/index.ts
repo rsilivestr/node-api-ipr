@@ -1,5 +1,7 @@
+import cors from 'cors';
 import dotenv from 'dotenv';
 import express, { json, Express, Request, Response } from 'express';
+import helmet from 'helmet';
 
 import auth from './routes/auth';
 import authors from './routes/authors';
@@ -12,6 +14,8 @@ dotenv.config();
 
 const app: Express = express();
 
+app.use(cors());
+app.use(helmet());
 app.use(json());
 
 const baseUrl = '/api/v1';
