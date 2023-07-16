@@ -28,11 +28,11 @@ export class PostController {
         author,
         category,
         content,
-        created_at,
+        created_at, // accepts either ISO date or unix timestamp
         created_at__gt,
         created_at__lt,
-        limit = '5',
-        offset = '0',
+        limit = '5', // entries per page
+        offset = '0', // page offset, number of skipped entries
         order = 'id',
         search,
         tag,
@@ -78,14 +78,37 @@ export class PostController {
         conditions.push(`created_at < $${conditionValues.length}::date`);
       }
 
+      if (search) {
+        conditionValues.push(`%${search}%`);
+        conditions.push(`
+          title ILIKE $${conditionValues.length}
+          OR body ILIKE $${conditionValues.length}
+          OR author_id IN (
+            SELECT authors.id FROM users
+            JOIN authors ON users.id = authors.user_id
+            WHERE 
+              CONCAT(users.name, ' ', users.surname) 
+              ILIKE $${conditionValues.length}
+          )
+          OR tags && array(
+            SELECT tags.id FROM tags
+            WHERE tags.name ILIKE $${conditionValues.length}
+          )
+          OR category_id IN (
+            SELECT categories.id FROM categories
+            WHERE categories.name ILIKE $${conditionValues.length}
+          )
+        `)
+      }
+
       if (tag) {
         conditionValues.push(String(tag));
-        conditions.push(`$${conditionValues.length} = ANY(tags)`);
+        conditions.push(`$${conditionValues.length} = ANY (tags)`);
       }
 
       if (tags__in) {
         conditionValues.push(JSON.parse(String(tags__in)));
-        conditions.push(`$${conditionValues.length} @> (tags)`);
+        conditions.push(`$${conditionValues.length} && (tags)`);
       }
 
       if (tags__all) {
@@ -100,7 +123,7 @@ export class PostController {
 
       let queryString = ' WHERE is_published';
 
-      queryString += conditions.length > 0 ? ` AND ${conditions.join(' AND ')}` : '';
+      queryString += conditions.reduce((acc, condition) => `${acc} AND ${condition}`, '');
 
       conditionValues.push(String(order));
       queryString += ` ORDER BY $${conditionValues.length}`;

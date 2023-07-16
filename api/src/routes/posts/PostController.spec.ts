@@ -58,11 +58,11 @@ describe('Post controller', () => {
     test('Should support filtering by author', async () => {
       const response1 = await request(process.env.LOCALHOST).get('/posts?author=roman');
       for (const post of response1.body) {
-        expect(post.author.name).toBe('Roman');
+        expect(post.author.name).toMatch('Roman');
       }
       const response2 = await request(process.env.LOCALHOST).get('/posts?author=doe');
       for (const post of response2.body) {
-        expect(post.author.name).toBe('John');
+        expect(post.author.surname).toMatch('Doe');
       }
     });
 
@@ -90,7 +90,9 @@ describe('Post controller', () => {
     test('Should support filtering by date greater than provided', async () => {
       const testDate = '2021-01-01';
       const testTimestamp = new Date(testDate).getTime();
-      const response = await request(process.env.LOCALHOST).get(`/posts?created_at__gt=${testDate}`);
+      const response = await request(process.env.LOCALHOST).get(
+        `/posts?created_at__gt=${testDate}`
+      );
       expect(response.body.length).toBeGreaterThan(1);
       for (const post of response.body) {
         expect(new Date(post.created_at).getTime()).toBeGreaterThan(testTimestamp);
@@ -100,10 +102,66 @@ describe('Post controller', () => {
     test('Should support filtering by date less than provided', async () => {
       const testDate = '2021-01-01';
       const testTimestamp = new Date(testDate).getTime();
-      const response = await request(process.env.LOCALHOST).get(`/posts?created_at__lt=${testDate}`);
+      const response = await request(process.env.LOCALHOST).get(
+        `/posts?created_at__lt=${testDate}`
+      );
       expect(response.body.length).toBeGreaterThan(1);
       for (const post of response.body) {
         expect(new Date(post.created_at).getTime()).toBeLessThan(testTimestamp);
+      }
+    });
+
+    test('Should support filtering by a search term found in title', async () => {
+      const term = 'ducks';
+      const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
+      expect(response.body.length).toBeGreaterThan(0);
+      for (const post of response.body) {
+        expect(post.title).toMatch(new RegExp(term, 'i'));
+      }
+    });
+
+    test('Should support filtering by a search term found in body', async () => {
+      const term = 'awesome';
+      const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
+      expect(response.body.length).toBeGreaterThan(0);
+      for (const post of response.body) {
+        expect(post.body).toMatch(new RegExp(term, 'i'));
+      }
+    });
+
+    test('Should support filtering by a search term found in author name', async () => {
+      const term = 'john'
+      const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
+      expect(response.body.length).toBeGreaterThan(0);
+      for (const post of response.body) {
+        expect(post.author.name).toMatch(new RegExp(term, 'i'));
+      }
+    });
+
+    test('Should support filtering by a search term found in author surname', async () => {
+      const term = 'romanov'
+      const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
+      expect(response.body.length).toBeGreaterThan(0);
+      for (const post of response.body) {
+        expect(post.author.surname).toMatch(new RegExp(term, 'i'));
+      }
+    });
+
+    test('Should support filtering by a search term found in a tag name', async () => {
+      const term = 'Tag 2'
+      const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
+      expect(response.body.length).toBeGreaterThan(0);
+      for (const post of response.body) {
+        expect(post.tags).toContain(term);
+      }
+    });
+
+    test('Should support filtering by a search term found in a category name', async () => {
+      const term = 'Category 1'
+      const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
+      expect(response.body.length).toBeGreaterThan(0);
+      for (const post of response.body) {
+        expect(post.categories).toContain(term);
       }
     });
 
