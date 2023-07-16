@@ -26,16 +26,16 @@ export class PostController {
     try {
       const {
         author,
-        category,
+        category, // id
         content,
-        created_at, // accepts either ISO date or unix timestamp
+        created_at, // accepts ISO date
         created_at__gt,
         created_at__lt,
         limit = '5', // entries per page
         offset = '0', // page offset, number of skipped entries
         order = 'id',
         search,
-        tag,
+        tag, // id
         tags__all,
         tags__in,
         title,
@@ -90,7 +90,7 @@ export class PostController {
               CONCAT(users.name, ' ', users.surname) 
               ILIKE $${conditionValues.length}
           )
-          OR tags && array(
+          OR tags && ARRAY (
             SELECT tags.id FROM tags
             WHERE tags.name ILIKE $${conditionValues.length}
           )
