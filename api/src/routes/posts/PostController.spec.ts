@@ -130,7 +130,7 @@ describe('Post controller', () => {
     });
 
     test('Should support filtering by a search term found in author name', async () => {
-      const term = 'john'
+      const term = 'roman';
       const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
       expect(response.body.length).toBeGreaterThan(0);
       for (const post of response.body) {
@@ -139,7 +139,7 @@ describe('Post controller', () => {
     });
 
     test('Should support filtering by a search term found in author surname', async () => {
-      const term = 'romanov'
+      const term = 'romanov';
       const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
       expect(response.body.length).toBeGreaterThan(0);
       for (const post of response.body) {
@@ -148,7 +148,7 @@ describe('Post controller', () => {
     });
 
     test('Should support filtering by a search term found in a tag name', async () => {
-      const term = 'Tag 2'
+      const term = 'Tag 2';
       const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
       expect(response.body.length).toBeGreaterThan(0);
       for (const post of response.body) {
@@ -157,11 +157,50 @@ describe('Post controller', () => {
     });
 
     test('Should support filtering by a search term found in a category name', async () => {
-      const term = 'Category 1'
+      const term = 'Category 1';
       const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
       expect(response.body.length).toBeGreaterThan(0);
       for (const post of response.body) {
         expect(post.categories).toContain(term);
+      }
+    });
+
+    test('Should sort by author full name', async () => {
+      const response = await request(process.env.LOCALHOST).get('/posts?order=author');
+      expect(response.body.length).toBeGreaterThan(0);
+    });
+
+    test('Should sort by creation date', async () => {
+      const response = await request(process.env.LOCALHOST).get('/posts?order=date');
+      expect(response.body.length).toBeGreaterThan(1);
+      for (let i = 1; i < response.body.length; i++) {
+        const timestamp = new Date(response.body[i].created_at).getTime();
+        const prevTimestamp = new Date(response.body[i - 1].created_at).getTime();
+        expect(timestamp).toBeGreaterThanOrEqual(prevTimestamp);
+      }
+    });
+
+    test('Should sort by image count', async () => {
+      const response = await request(process.env.LOCALHOST).get('/posts?order=image-count');
+      expect(response.body.length).toBeGreaterThan(1);
+      for (let i = 1; i < response.body.length; i++) {
+        expect(response.body[i].images.length).toBeLessThanOrEqual(response.body[i - 1].images.length);
+      }
+    });
+
+    test('Should sort by image count desc', async () => {
+      const response = await request(process.env.LOCALHOST).get('/posts?order=image-count-desc');
+      expect(response.body.length).toBeGreaterThan(1);
+      for (let i = 1; i < response.body.length; i++) {
+        expect(response.body[i].images.length).toBeLessThanOrEqual(response.body[i - 1].images.length);
+      }
+    });
+
+    test('Should sort by image count asc', async () => {
+      const response = await request(process.env.LOCALHOST).get('/posts?order=image-count-asc');
+      expect(response.body.length).toBeGreaterThan(1);
+      for (let i = 1; i < response.body.length; i++) {
+        expect(response.body[i].images.length).toBeGreaterThanOrEqual(response.body[i - 1].images.length);
       }
     });
 

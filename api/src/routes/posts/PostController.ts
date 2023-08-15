@@ -50,8 +50,8 @@ export class PostController {
           `author_id IN (
             SELECT authors.id FROM users
             JOIN authors ON users.id = authors.user_id
-            WHERE 
-              CONCAT(users.name, ' ', users.surname) 
+            WHERE
+              CONCAT(users.name, ' ', users.surname)
               ILIKE $${conditionValues.length}
           )`
         );
@@ -125,8 +125,31 @@ export class PostController {
 
       queryString += conditions.reduce((acc, condition) => `${acc} AND ${condition}`, '');
 
-      conditionValues.push(String(order));
-      queryString += ` ORDER BY $${conditionValues.length}`;
+      let orderString = '';
+      switch (order) {
+        case 'author':
+          orderString = `result.author ->> 'surname', result.author ->> 'name'`;
+          break;
+        case 'category':
+          // TODO
+          break;
+        case 'date':
+        case 'date-asc':
+          orderString = 'result.created_at ASC';
+          break;
+        case 'date-desc':
+          orderString = 'result.created_at DESC';
+          break;
+        case 'image-count':
+        case 'image-count-desc':
+          orderString = 'array_length(result.images, 1) DESC NULLS LAST';
+          break;
+        case 'image-count-asc':
+          orderString = 'array_length(result.images, 1) ASC NULLS FIRST';
+          break;
+        default: 
+          orderString = 'result.id';
+      }      
 
       conditionValues.push(String(limit));
       queryString += ` LIMIT $${conditionValues.length}`;
@@ -135,35 +158,37 @@ export class PostController {
       queryString += ` OFFSET $${conditionValues.length}`;
 
       const { rows } = await db.query(
-        `SELECT id, title, body, poster, images, is_published, created_at, updated_at, published_at,
-          (
-            SELECT json_build_object (
-              'name', users.name,
-              'surname', users.surname,
-              'avatar', users.avatar,
-              'description', authors.description
-            )
-            AS author
-            FROM authors
-            JOIN users ON authors.user_id = users.id
-            WHERE authors.id = posts.author_id
-          ), 
-          ARRAY (
-            SELECT name FROM tags
-            WHERE tags.id = ANY (posts.tags)
-          ) as tags, 
-          ARRAY (
-            WITH RECURSIVE postCategories AS (
-              SELECT name FROM categories
-              WHERE categories.id = posts.category_id
-              UNION ALL
-              SELECT c.name FROM categories c
-              INNER JOIN categories ON categories.parent_id = c.id
-              WHERE categories.id = posts.category_id
-            ) SELECT * FROM postCategories
-          ) as categories
-        FROM posts
-        ${queryString}`,
+        `SELECT * FROM (
+          SELECT id, title, body, poster, images, is_published, created_at, updated_at, published_at,
+            (
+              SELECT jsonb_build_object (
+                'name', users.name,
+                'surname', users.surname,
+                'avatar', users.avatar,
+                'description', authors.description
+              )
+              AS author
+              FROM authors
+              JOIN users ON authors.user_id = users.id
+              WHERE authors.id = posts.author_id
+            ), 
+            ARRAY (
+              SELECT name FROM tags
+              WHERE tags.id = ANY (posts.tags)
+            ) as tags, 
+            ARRAY (
+              WITH RECURSIVE postCategories AS (
+                SELECT name FROM categories
+                WHERE categories.id = posts.category_id
+                UNION ALL
+                SELECT c.name FROM categories c
+                INNER JOIN categories ON categories.parent_id = c.id
+                WHERE categories.id = posts.category_id
+              ) SELECT * FROM postCategories
+            ) as categories
+          FROM posts
+          ${queryString}
+        ) result ORDER BY ${orderString}`,
         conditionValues
       );
       res.send(rows);
