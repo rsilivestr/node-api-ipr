@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import auth from './routes/auth';
 import authors from './routes/authors';
 import categories from './routes/categories';
+import comments from './routes/comments';
 import posts from './routes/posts';
 import tags from './routes/tags';
 import users from './routes/users';
@@ -24,12 +25,13 @@ app.get(baseUrl, (req: Request, res: Response) => {
   res.send('Express + TypeScript Server');
 });
 
-app.use(`${baseUrl}/users`, users);
-app.use(`${baseUrl}/authors`, authors);
 app.use(`${baseUrl}/auth`, auth);
+app.use(`${baseUrl}/authors`, authors);
+app.use(`${baseUrl}/categories`, categories);
+app.use(`${baseUrl}/comments`, comments);
 app.use(`${baseUrl}/posts`, posts);
 app.use(`${baseUrl}/tags`, tags);
-app.use(`${baseUrl}/categories`, categories);
+app.use(`${baseUrl}/users`, users);
 
 const port = process.env.PORT;
 app.listen(port, () => {

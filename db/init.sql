@@ -102,24 +102,26 @@ CREATE TABLE drafts (
   images TEXT[],
   tags INT[] DEFAULT '{}',
   category_id INT REFERENCES categories(id),
-  updated_at TIMESTAMP DEFAULT NOW(),
-)
+  updated_at TIMESTAMP DEFAULT NOW()
+);
 
 CREATE TABLE comments (
   id SERIAL PRIMARY KEY,
   body TEXT NOT NULL,
-  author_id INT REFERENCES users(id) NOT NULL,
+  user_id INT REFERENCES users(id) NOT NULL,
   post_id INT REFERENCES posts(id) NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP
+  updated_at TIMESTAMP DEFAULT NOW()
 );
-
-CREATE TABLE post_comments (
-  post_id INT REFERENCES posts(id) NOT NULL,
-  comment_id INT REFERENCES comments(id) NOT NULL
-);
-
-CREATE TABLE post_tags (
-  post_id INT REFERENCES posts(id) NOT NULL,
-  tag_id INT REFERENCES tags(id) NOT NULL
-);
+INSERT INTO comments (body, user_id, post_id)
+VALUES
+  ('Comment 1', 3, 1),
+  ('Comment 2', 3, 1),
+  ('Comment 3', 3, 2),
+  ('Comment 4', 3, 2),
+  ('Comment 5', 3, 2),
+  ('Comment 6', 3, 3),
+  ('Comment 7', 3, 4),
+  ('Comment 8', 3, 4),
+  ('Comment 9', 3, 5),
+  ('Comment 10', 3, 5);

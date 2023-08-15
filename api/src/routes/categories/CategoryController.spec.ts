@@ -11,7 +11,7 @@ describe('Tag controller', () => {
   });
 
   describe('POST /categories', () => {
-    test('Should respond with 404 to unathorized requests', async () => {
+    test('Should respond with 404 to unauthorized requests', async () => {
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
         .send({ name: `Test ${Math.random()}` });
