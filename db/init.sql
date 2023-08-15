@@ -92,6 +92,19 @@ VALUES
   ('How to bake a cake', 'Ask your mom', 'mom.webp', '{}', '{ 1, 4 }', '2', '2', 'true', '2022-01-01'),
   ('Lingva latina', 'Lingua latina non lorem ipsum est', 'latin.webp', '{ "i.webp" }', '{ 3, 4 }', '1', '2', 'false', '2022-12-25');
 
+CREATE TABLE drafts (
+  id SERIAL PRIMARY KEY,
+  post_id INT REFERENCES posts(id) NOT NULL,
+  author_id INT REFERENCES authors(id) NOT NULL,
+  title VARCHAR(100),
+  body TEXT,
+  poster TEXT,
+  images TEXT[],
+  tags INT[] DEFAULT '{}',
+  category_id INT REFERENCES categories(id),
+  updated_at TIMESTAMP DEFAULT NOW(),
+)
+
 CREATE TABLE comments (
   id SERIAL PRIMARY KEY,
   body TEXT NOT NULL,
