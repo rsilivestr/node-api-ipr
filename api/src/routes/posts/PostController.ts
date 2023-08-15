@@ -131,7 +131,7 @@ export class PostController {
           orderString = `result.author ->> 'surname', result.author ->> 'name'`;
           break;
         case 'category':
-          // TODO
+          orderString = 'result.categories[1]'
           break;
         case 'date':
         case 'date-asc':
