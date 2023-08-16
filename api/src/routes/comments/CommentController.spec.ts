@@ -11,11 +11,11 @@ describe('Comment controller', () => {
   });
 
   describe('POST /comments', () => {
-    test('Should respond with 404 to unauthorized requests', async () => {
+    test('Should respond with 401 to requests without Authorization header', async () => {
       const response = await request(process.env.LOCALHOST)
         .post('/comments')
         .send({ body: 'Nice post', post_id: 1 });
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(401);
     });
 
     test('Should add a comment', async () => {

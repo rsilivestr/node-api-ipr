@@ -15,7 +15,7 @@ export const authMiddleware: (params?: Params) => RequestHandler =
       const authHeader = req.headers.authorization;
 
       if (!authHeader) {
-        res.sendStatus(404);
+        res.sendStatus(allowUser ? 401 : 404);
         return;
       }
 
@@ -27,7 +27,9 @@ export const authMiddleware: (params?: Params) => RequestHandler =
         res.sendStatus(404);
         return;
       }
-      const userQueryResult = await db.query('SELECT id, is_admin FROM users WHERE login=$1', [payload.sub]);
+      const userQueryResult = await db.query('SELECT id, is_admin FROM users WHERE login=$1', [
+        payload.sub,
+      ]);
       const user = userQueryResult.rows[0];
 
       if (!user || (!allowUser && !user.is_admin)) {
@@ -40,7 +42,9 @@ export const authMiddleware: (params?: Params) => RequestHandler =
         is_admin: user.is_admin,
       };
 
-      const authorQueryResult = await db.query('SELECT id FROM authors WHERE user_id=$1', [user.id]);
+      const authorQueryResult = await db.query('SELECT id FROM authors WHERE user_id=$1', [
+        user.id,
+      ]);
       if (authorQueryResult.rowCount > 0) {
         req.body.auth.author_id = authorQueryResult.rows[0].id;
       }

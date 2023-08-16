@@ -18,9 +18,9 @@ describe('Post controller', () => {
   });
 
   describe('POST /posts', () => {
-    test('Should respond with 404 to unauthorized request', async () => {
+    test('Should respond with 401 to unauthorized request', async () => {
       const response = await request(process.env.LOCALHOST).post('/posts').send(testPost);
-      expect(response.statusCode).toBe(404);
+      expect(response.statusCode).toBe(401);
     });
 
     test('Should respond with 201 to authorized author', async () => {
