@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, test } from '@jest/globals';
 import request from 'supertest';
 
 import { getAuthHeaders } from '../../test-setup';
+import { generateUserData } from '../../utils/generateUserData';
 
 describe('Author controller', () => {
   let authHeaders: Record<string, [string, string]> = {};
@@ -16,14 +17,8 @@ describe('Author controller', () => {
     beforeEach(async () => {
       const userCreateResponse = await request(process.env.LOCALHOST)
         .post('/users')
-        .send({
-          login: `ivan_${Math.random()}`,
-          password: '123',
-          name: 'Ivan',
-          surname: 'Ivanov',
-          avatar: '',
-        });
-      const createdUserAuth = `Bearer ${userCreateResponse.body.token}`;
+        .send(generateUserData());
+      const createdUserAuth = `Bearer ${userCreateResponse.body.accessToken}`;
       const createdUserResponse = await request(process.env.LOCALHOST)
         .get('/users/me')
         .set('Authorization', createdUserAuth);
@@ -45,25 +40,25 @@ describe('Author controller', () => {
       expect(response.statusCode).toBe(404);
     });
 
-    // test('Should create an author and respond with 201 on success', async () => {
-    //   const response = await request(process.env.LOCALHOST)
-    //     .post('/authors')
-    //     .send({ user_id: testUserId, description: 'lorem ipsum' })
-    //     .set(...authHeaders.admin);
-    //   expect(response.statusCode).toBe(201);
-    // });
+    test('Should create an author and respond with 201 on success', async () => {
+      const response = await request(process.env.LOCALHOST)
+        .post('/authors')
+        .send({ user_id: testUserId, description: 'lorem ipsum' })
+        .set(...authHeaders.admin);
+      expect(response.statusCode).toBe(201);
+    });
 
-    // test('Should respond with 409 when sent user is already an author', async () => {
-    //   await request(process.env.LOCALHOST)
-    //     .post('/authors')
-    //     .send({ user_id: testUserId, description: 'lorem ipsum' })
-    //     .set(...authHeaders.admin);
-    //   const response = await request(process.env.LOCALHOST)
-    //     .post('/authors')
-    //     .send({ user_id: testUserId, description: 'lorem ipsum' })
-    //     .set(...authHeaders.admin);
-    //   expect(response.statusCode).toBe(409);
-    // });
+    test('Should respond with 409 when sent user is already an author', async () => {
+      await request(process.env.LOCALHOST)
+        .post('/authors')
+        .send({ user_id: testUserId, description: 'lorem ipsum' })
+        .set(...authHeaders.admin);
+      const response = await request(process.env.LOCALHOST)
+        .post('/authors')
+        .send({ user_id: testUserId, description: 'lorem ipsum' })
+        .set(...authHeaders.admin);
+      expect(response.statusCode).toBe(409);
+    });
   });
 
   describe('GET /authors', () => {
