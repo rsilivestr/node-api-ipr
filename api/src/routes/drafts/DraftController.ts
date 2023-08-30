@@ -7,8 +7,7 @@ export class DraftController {
     try {
       const { auth, post_id, title, body, poster, images, category, tags } = req.body;
       const hasNoIds = !post_id || !auth.author_id;
-      const hasNoChanges = !title && !body && !poster && !images && !category && !tags;
-      if (hasNoIds || hasNoChanges) {
+      if (hasNoIds) {
         res.sendStatus(400);
         return;
       }
@@ -75,12 +74,6 @@ export class DraftController {
     try {
       const { auth, title, body, poster, images, category, tags } = req.body;
       const { id } = req.params;
-      const hasNoChanges = !title && !body && !poster && !images && !category && !tags;
-      if (hasNoChanges) {
-        res.sendStatus(400);
-        return;
-      }
-      const updatedAt = new Date();
       const queryResult = await db.query(
         `
           UPDATE drafts
@@ -91,11 +84,11 @@ export class DraftController {
             images = $4,
             category_id = $5,
             tags = $6,
-            updated_at = $7
-          WHERE id = $8 AND author_id = $9
+            updated_at = NOW()
+          WHERE author_id = $7 AND id = $8
           RETURNING *
         `,
-        [title, body, poster, images, category, tags, updatedAt, id, auth.author_id]
+        [title, body, poster, images, category, tags, auth.author_id, id]
       );
       if (queryResult.rowCount > 0) {
         res.sendStatus(204);
@@ -114,9 +107,9 @@ export class DraftController {
       const queryResult = await db.query(
         `
           DELETE FROM drafts
-          WHERE id = $1 AND author_id = $2
+          WHERE author_id = $1 AND id = $2
         `,
-        [id, auth.author_id]
+        [auth.author_id, id]
       );
       if (queryResult.rowCount > 0) {
         res.sendStatus(204);
@@ -130,7 +123,39 @@ export class DraftController {
 
   static publish: RequestHandler = async (req, res) => {
     try {
-      throw new Error('Not implemented');
+      const { auth } = req.body;
+      const { id } = req.params;
+
+      const updateQueryResult = await db.query(
+        `
+          UPDATE posts
+          SET
+            title = draft.title,
+            body = draft.body,
+            poster = draft.poster,
+            images = draft.images,
+            category_id = draft.category_id,
+            tags = draft.tags,
+            updated_at = NOW(),
+            published_at = COALESCE(published_at, NOW()),
+            is_published = TRUE
+          FROM (
+            SELECT * FROM drafts
+            WHERE drafts.author_id = $1 AND drafts.id = $2
+          ) AS draft
+          WHERE posts.id = draft.post_id
+          RETURNING *
+        `,
+        [auth.author_id, id]
+      );
+
+      if (updateQueryResult.rowCount > 0) {
+        await db.query(`DELETE FROM drafts WHERE id = $1`, [id]);
+
+        res.sendStatus(204);
+      } else {
+        res.sendStatus(404);
+      }
     } catch {
       res.sendStatus(500);
     }

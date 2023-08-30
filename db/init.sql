@@ -96,14 +96,19 @@ CREATE TABLE drafts (
   id SERIAL PRIMARY KEY,
   post_id INT REFERENCES posts(id) NOT NULL,
   author_id INT REFERENCES authors(id) NOT NULL,
-  title VARCHAR(100),
-  body TEXT,
+  title VARCHAR(100) NOT NULL,
+  body TEXT NOT NULL,
   poster TEXT,
   images TEXT[],
   tags INT[] DEFAULT '{}',
-  category_id INT REFERENCES categories(id),
+  category_id INT REFERENCES categories(id) NOT NULL,
   updated_at TIMESTAMP DEFAULT NOW()
 );
+
+INSERT INTO drafts (author_id, post_id, title, body, poster, images, tags, category_id)
+VALUES
+  (1, 1, 'Post about ducks, edited', 'Ducks are cool', 'duck.webp', '{ "a.webp", "b.webp" }', '{ 1, 2 }', 1),
+  (1, 3, 'About memes', 'Memes are a waste of time', 'meme1.webp', '{ "d.webp", "e.webp" }', '{ 3 }', 3);
 
 CREATE TABLE comments (
   id SERIAL PRIMARY KEY,
