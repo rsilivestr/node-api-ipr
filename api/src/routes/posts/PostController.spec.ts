@@ -111,7 +111,7 @@ describe('Post controller', () => {
     });
 
     test('Should support filtering by a search term found in title', async () => {
-      const term = 'ducks';
+      const term = 'cake';
       const response = await request(process.env.LOCALHOST).get(`/posts?search=${term}`);
       expect(response.body.length).toBeGreaterThan(0);
       for (const post of response.body) {

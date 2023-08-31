@@ -7,8 +7,10 @@ export class CategoryController {
     try {
       const { name, parent_id = null } = req.body;
       const existing = await db.query(
-        `SELECT * FROM categories
-         WHERE name=$1`,
+        `
+          SELECT * FROM categories
+          WHERE name = $1
+        `,
         [name]
       );
       if (existing.rowCount > 0) {
@@ -16,9 +18,11 @@ export class CategoryController {
         return;
       }
       const insertQueryResult = await db.query(
-        `INSERT INTO categories (name, parent_id)
-         VALUES ($1, $2)
-         RETURNING *`,
+        `
+          INSERT INTO categories (name, parent_id)
+          VALUES ($1, $2)
+          RETURNING *
+        `,
         [name, parent_id]
       );
       if (insertQueryResult.rowCount > 0) {
@@ -35,10 +39,12 @@ export class CategoryController {
     try {
       const { limit = '5', offset = '0' } = req.query;
       const { rows } = await db.query(
-        `SELECT * FROM categories
-         ORDER BY id
-         LIMIT $1
-         OFFSET $2`,
+        `
+          SELECT * FROM categories
+          ORDER BY id
+          LIMIT $1
+          OFFSET $2
+        `,
         [limit === '0' ? null : limit, offset]
       );
       res.send(rows);
@@ -50,8 +56,10 @@ export class CategoryController {
   static findOne: RequestHandler = async (req, res) => {
     try {
       const { rows, rowCount } = await db.query(
-        `SELECT * FROM categories
-         WHERE id=$1`,
+        `
+          SELECT * FROM categories
+          WHERE id = $1
+        `,
         [req.params.id]
       );
       if (rowCount === 0) {
@@ -72,8 +80,10 @@ export class CategoryController {
       }
 
       const found = await db.query(
-        `SELECT * FROM categories
-         WHERE id=$1`,
+        `
+          SELECT * FROM categories
+          WHERE id = $1
+        `,
         [req.params.id]
       );
 
@@ -86,9 +96,12 @@ export class CategoryController {
       const newParentId = req.body.parent_id ?? found.rows[0].parent_id;
 
       const { rowCount } = await db.query(
-        `UPDATE categories
-         SET name=$2, parent_id=$3
-         WHERE id=$1 RETURNING *`,
+        `
+          UPDATE categories
+          SET name = $2, parent_id = $3
+          WHERE id = $1
+          RETURNING *
+        `,
         [req.params.id, newName, newParentId]
       );
       res.sendStatus(rowCount === 1 ? 204 : 404);
@@ -100,8 +113,10 @@ export class CategoryController {
   static delete: RequestHandler = async (req, res) => {
     try {
       const { rowCount } = await db.query(
-        `DELETE FROM categories
-         WHERE id=$1`,
+        `
+          DELETE FROM categories
+          WHERE id = $1
+        `,
         [req.params.id]
       );
       res.sendStatus(rowCount === 1 ? 204 : 404);

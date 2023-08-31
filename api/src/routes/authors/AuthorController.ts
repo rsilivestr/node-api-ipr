@@ -7,7 +7,13 @@ export class AuthorController {
     try {
       const { user_id, description = '' } = req.body;
 
-      const selectQueryResult = await db.query('SELECT * FROM authors WHERE user_id=$1', [user_id]);
+      const selectQueryResult = await db.query(
+        `
+          SELECT * FROM authors
+          WHERE user_id = $1
+        `,
+        [user_id]
+      );
 
       if (selectQueryResult.rowCount > 0) {
         res.sendStatus(409);
@@ -15,9 +21,11 @@ export class AuthorController {
       }
 
       const insertQueryResult = await db.query(
-        `INSERT INTO authors (user_id, description)
-         VALUES ($1, $2)
-         RETURNING *`,
+        `
+          INSERT INTO authors (user_id, description)
+          VALUES ($1, $2)
+          RETURNING *
+        `,
         [user_id, description]
       );
       if (insertQueryResult.rowCount > 0) {
@@ -34,10 +42,12 @@ export class AuthorController {
     try {
       const { limit = '5', offset = '0' } = req.query;
       const authorsQueryResult = await db.query(
-        `SELECT id, user_id, description
-         FROM authors
-         LIMIT $1
-         OFFSET $2`,
+        `
+          SELECT id, user_id, description
+          FROM authors
+          LIMIT $1
+          OFFSET $2
+        `,
         [limit === '0' ? null : limit, offset]
       );
       res.send(authorsQueryResult.rows);

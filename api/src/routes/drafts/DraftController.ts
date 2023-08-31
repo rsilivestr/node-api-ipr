@@ -41,7 +41,7 @@ export class DraftController {
           LIMIT $3
           OFFSET $4
         `,
-        [auth.author_id, post_id, limit, offset]
+        [auth.author_id, post_id, limit === '0' ? null : limit, offset]
       );
       res.send(drafts);
     } catch {

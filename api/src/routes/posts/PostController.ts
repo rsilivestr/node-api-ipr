@@ -7,9 +7,11 @@ export class PostController {
     try {
       const { auth, body, category_id, tags, title } = req.body;
       const insertQueryResult = await db.query(
-        `INSERT into posts (title, body, author_id, tags, category_id)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING *`,
+        `
+          INSERT into posts (title, body, author_id, tags, category_id)
+          VALUES ($1, $2, $3, $4, $5)
+          RETURNING *
+        `,
         [title, body, auth.author_id, tags, category_id]
       );
       if (insertQueryResult.rowCount > 0) {
@@ -46,15 +48,15 @@ export class PostController {
 
       if (author) {
         conditionValues.push(`%${author}%`);
-        conditions.push(
-          `author_id IN (
+        conditions.push(`
+          author_id IN (
             SELECT authors.id FROM users
             JOIN authors ON users.id = authors.user_id
             WHERE
               CONCAT(users.name, ' ', users.surname)
               ILIKE $${conditionValues.length}
-          )`
-        );
+          )
+        `);
       }
 
       if (category) {
@@ -158,37 +160,39 @@ export class PostController {
       queryString += ` OFFSET $${conditionValues.length}`;
 
       const { rows } = await db.query(
-        `SELECT * FROM (
-          SELECT id, title, body, poster, images, is_published, created_at, updated_at, published_at,
-            (
-              SELECT jsonb_build_object (
-                'name', users.name,
-                'surname', users.surname,
-                'avatar', users.avatar,
-                'description', authors.description
-              )
-              AS author
-              FROM authors
-              JOIN users ON authors.user_id = users.id
-              WHERE authors.id = posts.author_id
-            ), 
-            ARRAY (
-              SELECT name FROM tags
-              WHERE tags.id = ANY (posts.tags)
-            ) as tags, 
-            ARRAY (
-              WITH RECURSIVE postCategories AS (
-                SELECT name FROM categories
-                WHERE categories.id = posts.category_id
-                UNION ALL
-                SELECT c.name FROM categories c
-                INNER JOIN categories ON categories.parent_id = c.id
-                WHERE categories.id = posts.category_id
-              ) SELECT * FROM postCategories
-            ) as categories
-          FROM posts
-          ${queryString}
-        ) result ORDER BY ${orderString}`,
+        `
+          SELECT * FROM (
+            SELECT id, title, body, poster, images, is_published, created_at, updated_at, published_at,
+              (
+                SELECT jsonb_build_object (
+                  'name', users.name,
+                  'surname', users.surname,
+                  'avatar', users.avatar,
+                  'description', authors.description
+                )
+                AS author
+                FROM authors
+                JOIN users ON authors.user_id = users.id
+                WHERE authors.id = posts.author_id
+              ), 
+              ARRAY (
+                SELECT name FROM tags
+                WHERE tags.id = ANY (posts.tags)
+              ) as tags, 
+              ARRAY (
+                WITH RECURSIVE postCategories AS (
+                  SELECT name FROM categories
+                  WHERE categories.id = posts.category_id
+                  UNION ALL
+                  SELECT c.name FROM categories c
+                  INNER JOIN categories ON categories.parent_id = c.id
+                  WHERE categories.id = posts.category_id
+                ) SELECT * FROM postCategories
+              ) as categories
+            FROM posts
+            ${queryString}
+          ) result ORDER BY ${orderString}
+        `,
         conditionValues
       );
       res.send(rows);
@@ -201,8 +205,10 @@ export class PostController {
     try {
       const { id } = req.params;
       const { rows, rowCount } = await db.query(
-        `SELECT * FROM posts
-         WHERE id=$1`,
+        `
+          SELECT * FROM posts
+          WHERE id = $1
+        `,
         [id]
       );
 

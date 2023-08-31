@@ -6,8 +6,10 @@ export class TagController {
   static create: RequestHandler = async (req, res) => {
     try {
       const existing = await db.query(
-        `SELECT * FROM tags
-         WHERE name=$1`,
+        `
+          SELECT * FROM tags
+          WHERE name = $1
+        `,
         [req.body.name]
       );
       if (existing.rowCount > 0) {
@@ -15,9 +17,11 @@ export class TagController {
         return;
       }
       const created = await db.query(
-        `INSERT INTO tags (name)
-         VALUES ($1)
-         RETURNING id`,
+        `
+          INSERT INTO tags (name)
+          VALUES ($1)
+          RETURNING id
+        `,
         [req.body.name]
       );
       if (created.rowCount > 0) {
@@ -34,10 +38,12 @@ export class TagController {
     try {
       const { limit = '5', offset = '0' } = req.query;
       const { rows: tags } = await db.query(
-        `SELECT * FROM tags
-         ORDER BY id
-         LIMIT $1
-         OFFSET $2`,
+        `
+          SELECT * FROM tags
+          ORDER BY id
+          LIMIT $1
+          OFFSET $2
+        `,
         [limit === '0' ? null : limit, offset]
       );
       res.send(tags);
@@ -49,8 +55,10 @@ export class TagController {
   static findOne: RequestHandler = async (req, res) => {
     try {
       const { rows, rowCount } = await db.query(
-        `SELECT * FROM tags
-         WHERE id=$1`,
+        `
+          SELECT * FROM tags
+          WHERE id = $1
+        `,
         [req.params.id]
       );
       if (rowCount === 0) {
@@ -66,10 +74,12 @@ export class TagController {
   static update: RequestHandler = async (req, res) => {
     try {
       const { rowCount } = await db.query(
-        `UPDATE tags
-         SET name=$2
-         WHERE id=$1
-         RETURNING *`,
+        `
+          UPDATE tags
+          SET name = $2
+          WHERE id = $1
+          RETURNING *
+        `,
         [req.params.id, req.body.name]
       );
       res.sendStatus(rowCount === 1 ? 204 : 404);
@@ -81,8 +91,10 @@ export class TagController {
   static delete: RequestHandler = async (req, res) => {
     try {
       const { rowCount } = await db.query(
-        `DELETE FROM tags
-         WHERE id=$1`,
+        `
+          DELETE FROM tags
+          WHERE id = $1
+        `,
         [req.params.id]
       );
       res.sendStatus(rowCount === 1 ? 204 : 404);

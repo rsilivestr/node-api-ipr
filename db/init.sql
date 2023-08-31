@@ -90,7 +90,7 @@ VALUES
   ('On memes', 'Memes are a waste of time', 'meme.webp', '{ "d.webp", "e.webp", "f.webp" }', '{ 3 }', '4', '1', 'true', '2021-04-05'),
   ('About rabbits', 'Rabbits are awesome', 'rabbit.webp', '{ "g.webp", "h.webp" }', '{ 1, 3, 4 }', '3', '1', 'true', '2021-07-08'),
   ('How to bake a cake', 'Ask your mom', 'mom.webp', '{}', '{ 1, 4 }', '2', '2', 'true', '2022-01-01'),
-  ('Lingva latina', 'Lingua latina non lorem ipsum est', 'latin.webp', '{ "i.webp" }', '{ 3, 4 }', '1', '2', 'false', '2022-12-25');
+  ('Lingua latina', 'Lingua latina non lorem ipsum est', 'latin.webp', '{ "i.webp" }', '{ 3, 4 }', '1', '2', 'false', '2022-12-25');
 
 CREATE TABLE drafts (
   id SERIAL PRIMARY KEY,

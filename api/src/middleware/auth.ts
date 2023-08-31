@@ -23,11 +23,14 @@ export const authMiddleware: (params?: Params) => RequestHandler =
       const payload = verify(token, String(process.env.ACCESS_TOKEN_SECRET));
 
       if (!payload || typeof payload !== 'object' || !payload.sub) {
-        // res.sendStatus(403);
         res.sendStatus(404);
         return;
       }
-      const userQueryResult = await db.query('SELECT id, is_admin FROM users WHERE login=$1', [
+      const userQueryResult = await db.query(
+        `
+          SELECT id, is_admin FROM users
+          WHERE login = $1
+        `, [
         payload.sub,
       ]);
       const user = userQueryResult.rows[0];
@@ -42,7 +45,11 @@ export const authMiddleware: (params?: Params) => RequestHandler =
         is_admin: user.is_admin,
       };
 
-      const authorQueryResult = await db.query('SELECT id FROM authors WHERE user_id=$1', [
+      const authorQueryResult = await db.query(
+        `
+          SELECT id FROM authors
+          WHERE user_id = $1
+        `, [
         user.id,
       ]);
       if (authorQueryResult.rowCount > 0) {
@@ -52,7 +59,6 @@ export const authMiddleware: (params?: Params) => RequestHandler =
       next();
     } catch (err) {
       if (err instanceof JsonWebTokenError) {
-        // res.sendStatus(403);
         res.sendStatus(404);
         return;
       }

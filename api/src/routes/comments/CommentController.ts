@@ -11,9 +11,10 @@ export class CommentController {
         return;
       }
       const insertQueryResult = await db.query(
-        `INSERT into comments (body, user_id, post_id)
-         VALUES ($1, $2, $3)
-         RETURNING *
+        `
+          INSERT into comments (body, user_id, post_id)
+          VALUES ($1, $2, $3)
+          RETURNING *
         `,
         [body, auth.user_id, post_id]
       );
@@ -35,23 +36,25 @@ export class CommentController {
         return;
       }
       const { rows } = await db.query(
-        `SELECT id, body, created_at, updated_at,
-         ( 
-          SELECT jsonb_build_object (
-            'name', users.name,
-            'surname', users.surname,
-            'avatar', users.avatar
-          )
-          AS created_by
-          FROM users
-          WHERE users.id = comments.user_id
-         )
-         FROM comments
-         WHERE comments.post_id = $1
-         ORDER BY created_at DESC
-         LIMIT $2
-         OFFSET $3`,
-        [post_id, limit, offset]
+        `
+          SELECT id, body, created_at, updated_at,
+            (
+              SELECT jsonb_build_object (
+                'name', users.name,
+                'surname', users.surname,
+                'avatar', users.avatar
+              )
+              AS created_by
+              FROM users
+              WHERE users.id = comments.user_id
+            )
+          FROM comments
+          WHERE comments.post_id = $1
+          ORDER BY created_at DESC
+          LIMIT $2
+          OFFSET $3
+        `,
+        [post_id, limit === '0' ? null : limit, offset]
       );
       res.send(rows);
     } catch {
@@ -64,8 +67,10 @@ export class CommentController {
       const { auth } = req.body;
       const { id } = req.params;
       const selectQueryResult = await db.query(
-        `SELECT * FROM comments
-         WHERE id = $1`,
+        `
+          SELECT * FROM comments
+          WHERE id = $1
+        `,
         [id]
       );
       if (selectQueryResult.rowCount === 0) {
@@ -77,8 +82,10 @@ export class CommentController {
         return;
       }
       await db.query(
-        `DELETE FROM comments
-         WHERE id = $1`,
+        `
+          DELETE FROM comments
+          WHERE id = $1
+        `,
         [id]
       );
       res.sendStatus(204);

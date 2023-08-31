@@ -11,7 +11,13 @@ export class AuthController {
   static login: RequestHandler = async (req, res) => {
     try {
       const { login, password } = req.body;
-      const userQueryResult = await db.query('SELECT id, passwd_hash FROM users WHERE login=$1', [login]);
+      const userQueryResult = await db.query(
+        `
+          SELECT id, passwd_hash FROM users
+          WHERE login = $1
+        `,
+        [login]
+      );
 
       if (userQueryResult.rowCount === 0) {
         res.sendStatus(404);
@@ -38,7 +44,6 @@ export class AuthController {
       const payload = await decode(refreshToken);
 
       if (!payload || typeof payload !== 'object' || !payload.sub) {
-        // res.sendStatus(400);
         res.sendStatus(404);
         return;
       }
@@ -47,7 +52,6 @@ export class AuthController {
       const secret = await redisClient.get(payload.sub);
 
       if (!secret) {
-        // res.sendStatus(403)
         res.sendStatus(404);
         return;
       }
@@ -58,7 +62,6 @@ export class AuthController {
       res.send(tokens);
     } catch (err) {
       if (err instanceof JsonWebTokenError) {
-        // res.sendStatus(403)
         res.sendStatus(404);
       }
       res.sendStatus(500);
