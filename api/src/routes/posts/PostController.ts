@@ -100,7 +100,7 @@ export class PostController {
             SELECT categories.id FROM categories
             WHERE categories.name ILIKE $${conditionValues.length}
           )
-        `)
+        `);
       }
 
       if (tag) {
@@ -133,7 +133,7 @@ export class PostController {
           orderString = `result.author ->> 'surname', result.author ->> 'name'`;
           break;
         case 'category':
-          orderString = 'result.categories[1]'
+          orderString = 'result.categories[1]';
           break;
         case 'date':
         case 'date-asc':
@@ -149,9 +149,9 @@ export class PostController {
         case 'image-count-asc':
           orderString = 'array_length(result.images, 1) ASC NULLS FIRST';
           break;
-        default: 
+        default:
           orderString = 'result.id';
-      }      
+      }
 
       conditionValues.push(String(limit));
       queryString += ` LIMIT $${conditionValues.length}`;
