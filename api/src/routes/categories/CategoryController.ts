@@ -1,6 +1,7 @@
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { RequestHandler } from 'express';
 
-import prisma from '@/prisma';
+import { prisma, PrismaErrorCodes } from '@/prisma';
 
 export class CategoryController {
   static create: RequestHandler = async (req, res) => {
@@ -103,8 +104,12 @@ export class CategoryController {
       await prisma.category.delete({ where: { id: +req.params.id } });
 
       res.sendStatus(204);
-    } catch {
-      res.sendStatus(404);
+    } catch (err) {
+      if (err instanceof PrismaClientKnownRequestError && err.code === PrismaErrorCodes.NotFound) {
+        res.sendStatus(404);
+      } else {
+        res.sendStatus(500);
+      }
     } finally {
       await prisma.$disconnect();
     }

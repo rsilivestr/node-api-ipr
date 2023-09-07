@@ -1,7 +1,8 @@
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { hash } from 'bcrypt';
 import { RequestHandler } from 'express';
 
-import db from '@/db';
+import { prisma, PrismaErrorCodes } from '@/prisma';
 import { issueTokens } from '@/routes/auth/utils';
 
 const SALT_ROUNDS = 10;
@@ -9,74 +10,76 @@ const SALT_ROUNDS = 10;
 export class UserController {
   static create: RequestHandler = async (req, res) => {
     try {
-      const { login, password, name, surname, avatar } = req.body;
-      const existingUsers = await db.query(
-        `
-          SELECT login FROM users
-          WHERE login = $1
-        `,
-        [login]
-      );
+      await prisma.$connect();
 
-      if (existingUsers.rowCount > 0) {
+      const { login, password, name, surname, avatar } = req.body;
+
+      const existingUser = await prisma.user.findFirst({ where: { login } });
+
+      if (existingUser) {
         res.sendStatus(409);
         return;
       }
 
-      const passwordHash = await hash(password, SALT_ROUNDS);
-      await db.query(
-        `
-          INSERT INTO users (login, passwd_hash, name, surname, avatar)
-          VALUES ($1, $2, $3, $4, $5)
-        `,
-        [login, passwordHash, name, surname, avatar]
-      );
-      const tokens = await issueTokens(login);
+      const passwd_hash = await hash(password, SALT_ROUNDS);
 
-      res.status(201).send(tokens);
+      const insertedUser = await prisma.user.create({
+        data: { login, passwd_hash, name, surname, avatar },
+      });
+
+      if (insertedUser) {
+        const tokens = await issueTokens(login);
+        res.status(201).send(tokens);
+      } else {
+        res.sendStatus(400);
+      }
     } catch {
       res.sendStatus(500);
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
   static findOne: RequestHandler = async (req, res) => {
     try {
+      await prisma.$connect();
+
       const { user_id } = req.body.auth;
+
       if (!user_id) {
         res.sendStatus(400);
         return;
       }
-      const { rows, rowCount } = await db.query(
-        `
-          SELECT id, login, name, surname, avatar, is_admin, created_at
-          FROM users
-          WHERE id = $1
-        `,
-        [user_id]
-      );
-      if (rowCount === 0) {
-        res.sendStatus(404);
+
+      const user = await prisma.user.findUnique({ where: { id: user_id } });
+
+      if (user) {
+        res.send(user);
       } else {
-        res.send(rows[0]);
+        res.sendStatus(404);
       }
     } catch {
       res.sendStatus(500);
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
   static delete: RequestHandler = async (req, res) => {
     try {
-      const { rowCount } = await db.query(
-        `
-          DELETE FROM users
-          WHERE id = $1
-          RETURNING *
-        `,
-        [req.params.id]
-      );
-      res.sendStatus(rowCount === 1 ? 204 : 404);
-    } catch {
-      res.sendStatus(500);
+      await prisma.$connect();
+
+      await prisma.user.delete({ where: { id: +req.params.id } });
+
+      res.sendStatus(204);
+    } catch (err) {
+      if (err instanceof PrismaClientKnownRequestError && err.code === PrismaErrorCodes.NotFound) {
+        res.sendStatus(404);
+      } else {
+        res.sendStatus(500);
+      }
+    } finally {
+      await prisma.$disconnect();
     }
   };
 }
