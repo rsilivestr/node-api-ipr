@@ -1,58 +1,46 @@
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { RequestHandler } from 'express';
 
-import db from '@/db';
+import { PrismaErrorCodes, prisma } from '@/prisma';
 
 export class AuthorController {
   static create: RequestHandler = async (req, res) => {
     try {
+      await prisma.$connect();
+
       const { user_id, description = '' } = req.body;
 
-      const selectQueryResult = await db.query(
-        `
-          SELECT * FROM authors
-          WHERE user_id = $1
-        `,
-        [user_id]
-      );
+      const createdAuthor = await prisma.author.create({ data: { user_id, description } });
 
-      if (selectQueryResult.rowCount > 0) {
-        res.sendStatus(409);
-        return;
-      }
-
-      const insertQueryResult = await db.query(
-        `
-          INSERT INTO authors (user_id, description)
-          VALUES ($1, $2)
-          RETURNING *
-        `,
-        [user_id, description]
-      );
-      if (insertQueryResult.rowCount > 0) {
-        res.status(201).send(insertQueryResult.rows[0]);
+      if (createdAuthor) {
+        res.status(201).send(createdAuthor);
       } else {
         res.sendStatus(400);
       }
-    } catch {
-      res.sendStatus(500);
+    } catch (err) {
+      if (err instanceof PrismaClientKnownRequestError && err.code === PrismaErrorCodes.NotUnique) {
+        res.sendStatus(409);
+      } else {
+        res.sendStatus(500);
+      }
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      const { limit = '5', offset = '0' } = req.query;
-      const authorsQueryResult = await db.query(
-        `
-          SELECT id, user_id, description
-          FROM authors
-          LIMIT $1
-          OFFSET $2
-        `,
-        [limit === '0' ? null : limit, offset]
-      );
-      res.send(authorsQueryResult.rows);
+      await prisma.$connect();
+
+      const { limit = 5, offset = 0 } = req.query;
+
+      const authors = await prisma.author.findMany({ take: +limit, skip: +offset });
+
+      res.send(authors);
     } catch {
       res.sendStatus(500);
+    } finally {
+      await prisma.$disconnect();
     }
   };
 }
