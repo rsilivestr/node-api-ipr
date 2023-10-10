@@ -6,8 +6,6 @@ import { PrismaErrorCodes, prisma } from '@/prisma';
 export class AuthorController {
   static create: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const { user_id, description = '' } = req.body;
 
       const createdAuthor = await prisma.author.create({ data: { user_id, description } });
@@ -23,15 +21,11 @@ export class AuthorController {
       } else {
         res.sendStatus(500);
       }
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const { limit = 5, offset = 0 } = req.query;
 
       const authors = await prisma.author.findMany({ take: +limit, skip: +offset });
@@ -39,8 +33,6 @@ export class AuthorController {
       res.send(authors);
     } catch {
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 }

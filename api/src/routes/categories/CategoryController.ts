@@ -6,8 +6,6 @@ import { prisma, PrismaErrorCodes } from '@/prisma';
 export class CategoryController {
   static create: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const { name, parent_id = null } = req.body;
       const existing = await prisma.category.findFirst({ where: { name } });
 
@@ -26,15 +24,11 @@ export class CategoryController {
     } catch (err) {
       console.debug({ err });
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const { limit = 5, offset = 0 } = req.query;
 
       const categories = await prisma.category.findMany({
@@ -45,15 +39,11 @@ export class CategoryController {
       res.send(categories);
     } catch {
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
   static findOne: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const catgegory = await prisma.category.findFirst({ where: { id: +req.params.id } });
 
       if (catgegory) {
@@ -63,8 +53,6 @@ export class CategoryController {
       }
     } catch {
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
@@ -74,8 +62,6 @@ export class CategoryController {
         res.sendStatus(400);
         return;
       }
-
-      await prisma.$connect();
 
       const updatedCategory = await prisma.category.update({
         where: { id: +req.params.id },
@@ -92,15 +78,11 @@ export class CategoryController {
       }
     } catch {
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
   static delete: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       await prisma.category.delete({ where: { id: +req.params.id } });
 
       res.sendStatus(204);
@@ -110,8 +92,6 @@ export class CategoryController {
       } else {
         res.sendStatus(500);
       }
-    } finally {
-      await prisma.$disconnect();
     }
   };
 }

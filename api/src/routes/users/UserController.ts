@@ -10,8 +10,6 @@ const SALT_ROUNDS = 10;
 export class UserController {
   static create: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const { login, password, name, surname, avatar } = req.body;
 
       const existingUser = await prisma.user.findFirst({ where: { login } });
@@ -35,15 +33,11 @@ export class UserController {
       }
     } catch {
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
   static findOne: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const { user_id } = req.body.auth;
 
       if (!user_id) {
@@ -60,15 +54,11 @@ export class UserController {
       }
     } catch {
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
   static delete: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       await prisma.user.delete({ where: { id: +req.params.id } });
 
       res.sendStatus(204);
@@ -78,8 +68,6 @@ export class UserController {
       } else {
         res.sendStatus(500);
       }
-    } finally {
-      await prisma.$disconnect();
     }
   };
 }

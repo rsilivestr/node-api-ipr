@@ -14,7 +14,10 @@ export const issueRefreshToken = async (sub: string) => {
 };
 
 export const issueTokens = async (sub: string) => {
-  const [accessToken, refreshToken] = await Promise.all([issueAccessToken(sub), issueRefreshToken(sub)]);
+  const [accessToken, refreshToken] = await Promise.all([
+    issueAccessToken(sub),
+    issueRefreshToken(sub),
+  ]);
 
   return { accessToken, refreshToken };
 };

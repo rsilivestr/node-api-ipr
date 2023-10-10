@@ -6,8 +6,6 @@ import { prisma, PrismaErrorCodes } from '@/prisma';
 export class TagController {
   static create: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const { name } = req.body;
 
       const existingTag = await prisma.tag.findFirst({ where: { name } });
@@ -26,15 +24,11 @@ export class TagController {
       }
     } catch {
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const { limit = 5, offset = 0 } = req.query;
 
       const tags = await prisma.tag.findMany({ take: +limit, skip: +offset });
@@ -42,15 +36,11 @@ export class TagController {
       res.send(tags);
     } catch {
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
   static findOne: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const tag = await prisma.tag.findFirst({ where: { id: +req.params.id } });
 
       if (tag) {
@@ -60,15 +50,11 @@ export class TagController {
       }
     } catch {
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
   static update: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       const updatedTag = await prisma.tag.update({
         where: { id: +req.params.id },
         data: { name: req.body.name },
@@ -81,15 +67,11 @@ export class TagController {
       }
     } catch {
       res.sendStatus(500);
-    } finally {
-      await prisma.$disconnect();
     }
   };
 
   static delete: RequestHandler = async (req, res) => {
     try {
-      await prisma.$connect();
-
       await prisma.tag.delete({ where: { id: +req.params.id } });
 
       res.sendStatus(204);
@@ -99,8 +81,6 @@ export class TagController {
       } else {
         res.sendStatus(500);
       }
-    } finally {
-      await prisma.$disconnect();
     }
   };
 }

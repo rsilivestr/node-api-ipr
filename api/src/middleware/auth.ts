@@ -30,9 +30,9 @@ export const authMiddleware: (params?: Params) => RequestHandler =
         `
           SELECT id, is_admin FROM users
           WHERE login = $1
-        `, [
-        payload.sub,
-      ]);
+        `,
+        [payload.sub]
+      );
       const user = userQueryResult.rows[0];
 
       if (!user || (!allowUser && !user.is_admin)) {
@@ -49,9 +49,9 @@ export const authMiddleware: (params?: Params) => RequestHandler =
         `
           SELECT id FROM authors
           WHERE user_id = $1
-        `, [
-        user.id,
-      ]);
+        `,
+        [user.id]
+      );
       if (authorQueryResult.rowCount > 0) {
         req.body.auth.author_id = authorQueryResult.rows[0].id;
       }

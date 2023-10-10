@@ -81,7 +81,9 @@ describe('Tag controller', () => {
 
   describe('PATCH /categories/:id', () => {
     test('Should respond with 404 to unauthorized request', async () => {
-      const response = await request(process.env.LOCALHOST).patch('/categories/2').send({ name: 'New category name' });
+      const response = await request(process.env.LOCALHOST)
+        .patch('/categories/2')
+        .send({ name: 'New category name' });
       expect(response.statusCode).toBe(404);
     });
 
