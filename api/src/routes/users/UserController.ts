@@ -2,7 +2,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { hash } from 'bcrypt';
 import { RequestHandler } from 'express';
 
-import { prisma, PrismaErrorCodes } from '@/prisma';
+import { prisma, PrismaErrorCode } from '@/prisma';
 import { issueTokens } from '@/routes/auth/utils';
 
 const SALT_ROUNDS = 10;
@@ -63,7 +63,7 @@ export class UserController {
 
       res.sendStatus(204);
     } catch (err) {
-      if (err instanceof PrismaClientKnownRequestError && err.code === PrismaErrorCodes.NotFound) {
+      if (err instanceof PrismaClientKnownRequestError && err.code === PrismaErrorCode.NotFound) {
         res.sendStatus(404);
       } else {
         res.sendStatus(500);

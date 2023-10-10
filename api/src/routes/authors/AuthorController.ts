@@ -1,7 +1,7 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { RequestHandler } from 'express';
 
-import { PrismaErrorCodes, prisma } from '@/prisma';
+import { PrismaErrorCode, prisma } from '@/prisma';
 
 export class AuthorController {
   static create: RequestHandler = async (req, res) => {
@@ -16,7 +16,7 @@ export class AuthorController {
         res.sendStatus(400);
       }
     } catch (err) {
-      if (err instanceof PrismaClientKnownRequestError && err.code === PrismaErrorCodes.NotUnique) {
+      if (err instanceof PrismaClientKnownRequestError && err.code === PrismaErrorCode.NotUnique) {
         res.sendStatus(409);
       } else {
         res.sendStatus(500);

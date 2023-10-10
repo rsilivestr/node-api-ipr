@@ -1,7 +1,7 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { RequestHandler } from 'express';
 
-import { prisma, PrismaErrorCodes } from '@/prisma';
+import { prisma, PrismaErrorCode } from '@/prisma';
 
 export class TagController {
   static create: RequestHandler = async (req, res) => {
@@ -76,7 +76,7 @@ export class TagController {
 
       res.sendStatus(204);
     } catch (err) {
-      if (err instanceof PrismaClientKnownRequestError && err.code === PrismaErrorCodes.NotFound) {
+      if (err instanceof PrismaClientKnownRequestError && err.code === PrismaErrorCode.NotFound) {
         res.sendStatus(404);
       } else {
         res.sendStatus(500);
