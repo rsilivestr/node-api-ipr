@@ -47,7 +47,7 @@ VALUES (2, 'Author description'), (4, 'John description');
 
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(50) NOT NULL,
+  name VARCHAR(50) UNIQUE NOT NULL,
   parent_id INT REFERENCES categories(id)
 );
 

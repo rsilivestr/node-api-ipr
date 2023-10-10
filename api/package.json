@@ -7,10 +7,12 @@
     "dev": "NODE_PATH=./src nodemon -e ts --exec ts-node -r tsconfig-paths/register src/index.ts",
     "test": "DOTENV_CONFIG_PATH=.env.test jest",
     "lint": "eslint ./src --ext .ts",
-    "lint:fix": "eslint ./src --ext .ts --fix"
+    "lint:fix": "eslint ./src --ext .ts --fix",
+    "prisma:generate": "prisma generate",
+    "prestart": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^5.2.0",
+    "@prisma/client": "^5.4.2",
     "@types/supertest": "^2.0.12",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",

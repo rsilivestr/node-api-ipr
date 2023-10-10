@@ -7,12 +7,6 @@ export class CategoryController {
   static create: RequestHandler = async (req, res) => {
     try {
       const { name, parent_id = null } = req.body;
-      const existing = await prisma.category.findFirst({ where: { name } });
-
-      if (existing) {
-        res.sendStatus(409);
-        return;
-      }
 
       const inserted = await prisma.category.create({ data: { name, parent_id } });
 
@@ -22,14 +16,17 @@ export class CategoryController {
         res.sendStatus(400);
       }
     } catch (err) {
-      console.debug({ err });
-      res.sendStatus(500);
+      if (err instanceof PrismaClientKnownRequestError && err.code === PrismaErrorCode.NotUnique) {
+        res.sendStatus(409);
+      } else {
+        res.sendStatus(500);
+      }
     }
   };
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      const { limit = 5, offset = 0 } = req.query;
+      const { limit = '5', offset = '0' } = req.query;
 
       const categories = await prisma.category.findMany({
         orderBy: { id: 'asc' },

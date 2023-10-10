@@ -29,7 +29,7 @@ export class TagController {
 
   static findMany: RequestHandler = async (req, res) => {
     try {
-      const { limit = 5, offset = 0 } = req.query;
+      const { limit = '5', offset = '0' } = req.query;
 
       const tags = await prisma.tag.findMany({ take: +limit, skip: +offset });
 

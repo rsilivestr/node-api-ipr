@@ -32,7 +32,7 @@ export class DraftController {
   static findMany: RequestHandler = async (req, res) => {
     try {
       const { auth } = req.body;
-      const { post_id = null, limit = 5, offset = 0 } = req.query;
+      const { post_id = null, limit = '5', offset = '0' } = req.query;
       const { rows: drafts } = await db.query(
         `
           SELECT * FROM drafts
