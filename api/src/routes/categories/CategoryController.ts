@@ -41,14 +41,13 @@ export class CategoryController {
 
   static findOne: RequestHandler = async (req, res) => {
     try {
-      const catgegory = await prisma.category.findFirst({ where: { id: +req.params.id } });
-
+      const catgegory = await prisma.category.findUnique({ where: { id: +req.params.id } });
       if (catgegory) {
         res.send(catgegory);
       } else {
         res.sendStatus(404);
       }
-    } catch {
+    } catch (err) {
       res.sendStatus(500);
     }
   };

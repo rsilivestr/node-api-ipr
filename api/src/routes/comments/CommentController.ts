@@ -43,9 +43,6 @@ export class CommentController {
       }
 
       const comments = await prisma.comment.findMany({
-        where: { post_id: +post_id },
-        take: +limit,
-        skip: +offset,
         include: {
           created_by: {
             select: {
@@ -55,9 +52,12 @@ export class CommentController {
             },
           },
         },
+        where: { post_id: +post_id },
         orderBy: {
           created_at: 'desc',
         },
+        take: +limit,
+        skip: +offset,
       });
       res.send(comments);
     } catch {
@@ -70,7 +70,7 @@ export class CommentController {
       const { auth } = req.body;
       const id = +req.params.id;
 
-      const comment = await prisma.comment.findFirst({ where: { id } });
+      const comment = await prisma.comment.findUnique({ where: { id } });
 
       if (!comment) {
         res.sendStatus(404);

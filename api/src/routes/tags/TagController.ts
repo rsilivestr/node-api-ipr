@@ -41,7 +41,7 @@ export class TagController {
 
   static findOne: RequestHandler = async (req, res) => {
     try {
-      const tag = await prisma.tag.findFirst({ where: { id: +req.params.id } });
+      const tag = await prisma.tag.findUnique({ where: { id: +req.params.id } });
 
       if (tag) {
         res.send(tag);

@@ -12,7 +12,7 @@ export class UserController {
     try {
       const { login, password, name, surname, avatar } = req.body;
 
-      const existingUser = await prisma.user.findFirst({ where: { login } });
+      const existingUser = await prisma.user.findUnique({ where: { login } });
 
       if (existingUser) {
         res.sendStatus(409);

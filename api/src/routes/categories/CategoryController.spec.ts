@@ -77,6 +77,13 @@ describe('Tag controller', () => {
       expect(response.body).toHaveProperty('name');
       expect(response.body).toHaveProperty('parent_id');
     });
+
+    test('Should return 404 if not found', async () => {
+      const response1 = await request(process.env.LOCALHOST).get('/categories/0');
+      const response2 = await request(process.env.LOCALHOST).get('/categories/99999');
+      expect(response1.statusCode).toBe(404);
+      expect(response2.statusCode).toBe(404);
+    });
   });
 
   describe('PATCH /categories/:id', () => {
