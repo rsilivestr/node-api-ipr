@@ -87,7 +87,7 @@ describe('Post controller', () => {
     });
 
     test('Should support filtering by date greater than provided', async () => {
-      const testDate = '2021-01-01';
+      const testDate = '2021-05-05';
       const testTimestamp = new Date(testDate).getTime();
       const response = await request(process.env.LOCALHOST).get(
         `/posts?created_at__gt=${testDate}`
@@ -99,7 +99,7 @@ describe('Post controller', () => {
     });
 
     test('Should support filtering by date less than provided', async () => {
-      const testDate = '2021-01-01';
+      const testDate = '2021-05-05';
       const testTimestamp = new Date(testDate).getTime();
       const response = await request(process.env.LOCALHOST).get(
         `/posts?created_at__lt=${testDate}`

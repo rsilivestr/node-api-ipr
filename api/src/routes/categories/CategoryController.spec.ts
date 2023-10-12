@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, test } from '@jest/globals';
+import { randomBytes } from 'crypto';
 import request from 'supertest';
 
 import { getAuthHeaders } from '../../test-setup';
@@ -14,14 +15,14 @@ describe('Tag controller', () => {
     test('Should respond with 404 to unauthorized requests', async () => {
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
-        .send({ name: `Test ${Math.random()}` });
+        .send({ name: `Test ${randomBytes(10).toString('hex')}` });
       expect(response.statusCode).toBe(404);
     });
 
     test('Should respond with 404 to non-admin user requests', async () => {
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
-        .send({ name: `Test ${Math.random()}` })
+        .send({ name: `Test ${randomBytes(10).toString('hex')}` })
         .set(...authHeaders.user);
       expect(response.statusCode).toBe(404);
     });
@@ -29,7 +30,7 @@ describe('Tag controller', () => {
     test('Should create a category and respond with 201 to admin', async () => {
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
-        .send({ name: `Test ${Math.random()}` })
+        .send({ name: `Test ${randomBytes(10).toString('hex')}` })
         .set(...authHeaders.admin);
       expect(response.statusCode).toBe(201);
     });
@@ -37,13 +38,13 @@ describe('Tag controller', () => {
     test('Should create a category with name and parent_id', async () => {
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
-        .send({ name: `Test ${Math.random()}`, parent_id: 1 })
+        .send({ name: `Test ${randomBytes(10).toString('hex')}`, parent_id: 1 })
         .set(...authHeaders.admin);
       expect(response.statusCode).toBe(201);
     });
 
     test('Should respond with 409 if category name already exists', async () => {
-      const name = `Test ${Math.random()}`;
+      const name = `Test ${randomBytes(10).toString('hex')}`;
       await request(process.env.LOCALHOST)
         .post('/categories')
         .send({ name })
@@ -152,7 +153,7 @@ describe('Tag controller', () => {
     beforeAll(async () => {
       const response = await request(process.env.LOCALHOST)
         .post('/categories')
-        .send({ name: `Test ${Math.random()}` })
+        .send({ name: `Test ${randomBytes(10).toString('hex')}` })
         .set(...authHeaders.admin);
       testId = response.body.id;
     });

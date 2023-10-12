@@ -1,5 +1,3 @@
-yarn run v1.22.19
-$ /home/roman/dev/metalamp/node-ipr/api/node_modules/.bin/prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
@@ -26,7 +24,7 @@ CREATE TABLE "authors" (
 -- CreateTable
 CREATE TABLE "categories" (
     "id" SERIAL NOT NULL,
-    "name" VARCHAR(50) UNIQUE NOT NULL,
+    "name" VARCHAR(50) NOT NULL,
     "parent_id" INTEGER,
 
     CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
@@ -118,5 +116,3 @@ ALTER TABLE "comments" ADD CONSTRAINT "comments_post_id_fkey" FOREIGN KEY ("post
 
 -- AddForeignKey
 ALTER TABLE "comments" ADD CONSTRAINT "comments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-Done in 0.61s.

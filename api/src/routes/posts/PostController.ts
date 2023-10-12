@@ -71,13 +71,13 @@ export class PostController {
 
       if (created_at) {
         conditionValues.push(String(created_at));
-        conditions.push(`created_at = $${conditionValues.length}::date`);
+        conditions.push(`created_at::date = $${conditionValues.length}::date`);
       } else if (created_at__gt) {
         conditionValues.push(String(created_at__gt));
-        conditions.push(`created_at > $${conditionValues.length}::date`);
+        conditions.push(`created_at::date > $${conditionValues.length}::date`);
       } else if (created_at__lt) {
         conditionValues.push(String(created_at__lt));
-        conditions.push(`created_at < $${conditionValues.length}::date`);
+        conditions.push(`created_at::date < $${conditionValues.length}::date`);
       }
 
       if (search) {

@@ -35,7 +35,7 @@ model Author {
 
 model Category {
   id               Int        @id @default(autoincrement())
-  name             String     @db.VarChar(50)
+  name             String     @unique @db.VarChar(50)
   parent_id        Int?
   categories       Category?  @relation("categoriesTocategories", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   other_categories Category[] @relation("categoriesTocategories")
@@ -68,7 +68,7 @@ model Post {
   comments     Comment[]
   drafts       Draft[]
   author       Author    @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  category     Category? @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  category     Category  @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("posts")
 }
